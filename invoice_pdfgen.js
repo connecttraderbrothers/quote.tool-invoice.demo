@@ -90,7 +90,7 @@ function previewInvoice() {
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <div class="invoice-banner-preview">INVOICE</div>
+        <div class="invoice-banner-preview">INVOICE FOR</div>
         <div>${statusBadge}</div>
       </div>
 
@@ -581,7 +581,7 @@ function generateInvoiceHTML() {
       </div>
 
       <div class="invoice-header-section">
-        <div class="invoice-banner">INVOICE</div>
+        <div class="invoice-banner">INVOICE FOR</div>
         <div class="status-badge">${statusBadge}</div>
       </div>
 
