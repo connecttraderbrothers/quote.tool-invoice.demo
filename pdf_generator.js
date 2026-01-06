@@ -5,6 +5,7 @@ const PDFSHIFT_API_KEY = 'sk_baa46c861371ec5f60ab2e83221fdac1ccce517b';
 function generateCompleteHTML() {
     var clientName = document.getElementById('clientName').value || '[Client Name]';
     var clientPhone = document.getElementById('clientPhone').value;
+    var clientEmail = document.getElementById('clientEmail').value;
     var projectAddress = document.getElementById('projectAddress').value || '[Project Address]';
     var projectPostcode = document.getElementById('projectPostcode').value;
     var customerId = document.getElementById('customerId').value || 'N/A';
@@ -261,6 +262,7 @@ function generateCompleteHTML() {
             <span class="info-label">Phone:</span>
             <span class="info-value">${clientPhone || 'N/A'}</span>
           </div>
+          ${clientEmail ? '<div class="info-row"><span class="info-label">Email:</span><span class="info-value">' + clientEmail + '</span></div>' : ''}
         </div>
 
         <div class="estimate-details">
