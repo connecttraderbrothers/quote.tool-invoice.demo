@@ -400,7 +400,9 @@ function previewQuote() {
     
     var clientName = document.getElementById('clientName').value || '[Client Name]';
     var clientPhone = document.getElementById('clientPhone').value;
+    var clientEmail = document.getElementById('clientEmail').value;
     var projectAddress = document.getElementById('projectAddress').value || '[Project Address]';
+    var projectPostcode = document.getElementById('projectPostcode').value;
     var customerId = document.getElementById('customerId').value || 'N/A';
     var depositPercent = document.getElementById('depositPercent').value || '30';
     
@@ -482,12 +484,13 @@ function previewQuote() {
           </div>
           <div class="info-row-preview">
             <span class="info-label-preview">Postcode:</span>
-            <span class="info-value-preview">${document.getElementById('projectPostcode').value || 'N/A'}</span>
+            <span class="info-value-preview">${projectPostcode || 'N/A'}</span>
           </div>
           <div class="info-row-preview">
             <span class="info-label-preview">Phone:</span>
             <span class="info-value-preview">${clientPhone || 'N/A'}</span>
           </div>
+          ${clientEmail ? `<div class="info-row-preview"><span class="info-label-preview">Email:</span><span class="info-value-preview">${clientEmail}</span></div>` : ''}
         </div>
 
         <div class="estimate-details-preview">
@@ -541,7 +544,7 @@ function previewQuote() {
         <ol>
           <li>Estimate valid for 31 days</li>
           <li>Payment of ${depositPercent}% is required to secure start date</li>
-          <li>Pending to be supplied by customer</li>
+          <li>Parking to be supplied by customer</li>
           <li>Any extras to be charged accordingly</li>
         </ol>
       </div>
@@ -583,4 +586,4 @@ window.onclick = function(event) {
     if (event.target == modal) {
         closePreview();
     }
-}
+};
