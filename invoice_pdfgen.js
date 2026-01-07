@@ -177,11 +177,11 @@ function previewInvoice() {
               </div>
               <div style="margin-bottom: 4px;">
                 <span style="font-weight: 600;">Account Number:</span>
-                <span style="margin-left: 10px;">24049254</span>
+                <span style="margin-left: 10px;">12345678</span>
               </div>
               <div>
                 <span style="font-weight: 600;">Sort Code:</span>
-                <span style="margin-left: 10px;">04-06-05</span>
+                <span style="margin-left: 10px;">12-34-56</span>
               </div>
             </div>
           </div>
@@ -208,7 +208,7 @@ function previewInvoice() {
           If you have any questions about this invoice, please contact<br>
           us at traderbrotherslimited@gmail.com, or 07931810557
         </div>
-        <div style="margin-top: 15px; font-weight: bold; color: #333; font-size: 12px;">Thank you for your business</div>
+        <div style="margin-top: 10px; font-weight: bold; color: #333; font-size: 12px;">Thank you for your business</div>
       </div>
     </div>`;
 
@@ -677,11 +677,11 @@ function generateInvoiceHTML() {
               </div>
               <div style="margin-bottom: 4px;">
                 <span style="font-weight: 600;">Account Number:</span>
-                <span style="margin-left: 10px;">24049254</span>
+                <span style="margin-left: 10px;">12345678</span>
               </div>
               <div>
                 <span style="font-weight: 600;">Sort Code:</span>
-                <span style="margin-left: 10px;">04-06-05</span>
+                <span style="margin-left: 10px;">12-34-56</span>
               </div>
             </div>
           </div>
@@ -703,12 +703,11 @@ function generateInvoiceHTML() {
         </div>
       </div>
 
-      <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center;">
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center;">
         <div style="font-size: 11px; color: #666; font-style: italic;">
-          If you have any questions about this invoice, please contact<br>
-          us at traderbrotherslimited@gmail.com, or 07931 810557
+          If you have any questions about this invoice, please contact us at traderbrotherslimited@gmail.com, or 07931 810557
         </div>
-        <div style="margin-top: 15px; font-weight: bold; color: #333; font-size: 12px;">Thank you for your business</div>
+        <div style="margin-top: 10px; font-weight: bold; color: #333; font-size: 12px;">Thank you for your business</div>
       </div>
     </div>`;
 
