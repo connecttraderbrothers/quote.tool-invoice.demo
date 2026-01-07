@@ -176,11 +176,11 @@ function previewInvoice() {
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
               <span style="font-weight: 600;">Account Number:</span>
-              <span>12345678</span>
+              <span>24049254</span>
             </div>
             <div style="display: flex; justify-content: space-between;">
               <span style="font-weight: 600;">Sort Code:</span>
-              <span>12-34-56</span>
+              <span>04-06-05</span>
             </div>
           </div>
         </div>
@@ -674,11 +674,11 @@ function generateInvoiceHTML() {
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
               <span style="font-weight: 600;">Account Number:</span>
-              <span>12345678</span>
+              <span>24049254</span>
             </div>
             <div style="display: flex; justify-content: space-between;">
               <span style="font-weight: 600;">Sort Code:</span>
-              <span>12-34-56</span>
+              <span>04-06-05</span>
             </div>
           </div>
         </div>
