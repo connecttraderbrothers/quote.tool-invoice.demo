@@ -166,21 +166,21 @@ function previewInvoice() {
         ${customNotes ? '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;"><h3 style="font-size: 13px; margin-bottom: 10px; color: #333;">Additional Notes:</h3><p style="font-size: 12px; line-height: 1.8; color: #666; white-space: pre-wrap;">' + customNotes + '</p></div>' : ''}
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; gap: 30px;">
-        <div style="flex: 1; padding: 20px; background: #f9f9f9; border-left: 3px solid #bc9c22;">
+      <div style="display: flex; justify-content: space-between; align-items: stretch; margin-top: 30px; gap: 30px;">
+        <div style="flex: 1; padding: 20px; background: #f9f9f9; border-left: 3px solid #bc9c22; display: flex; flex-direction: column;">
           <h3 style="font-size: 13px; margin-bottom: 15px; font-weight: bold; color: #333;">Payment Details</h3>
-          <div style="font-size: 12px; line-height: 2; color: #333;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <div style="font-size: 12px; line-height: 1.8; color: #333;">
+            <div style="margin-bottom: 6px;">
               <span style="font-weight: 600;">Account Name:</span>
-              <span>Trader Brothers Ltd</span>
+              <span style="margin-left: 10px;">Trader Brothers Ltd</span>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <div style="margin-bottom: 6px;">
               <span style="font-weight: 600;">Account Number:</span>
-              <span>24049254</span>
+              <span style="margin-left: 10px;">12345678</span>
             </div>
-            <div style="display: flex; justify-content: space-between;">
+            <div>
               <span style="font-weight: 600;">Sort Code:</span>
-              <span>04-06-05</span>
+              <span style="margin-left: 10px;">12-34-56</span>
             </div>
           </div>
         </div>
@@ -664,21 +664,21 @@ function generateInvoiceHTML() {
       </div>
       ${customNotes ? '<div class="payment-terms" style="margin-top: 20px;"><h3>Additional Notes:</h3><p style="white-space: pre-wrap;">' + customNotes + '</p></div>' : ''}
 
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; gap: 30px;">
-        <div style="flex: 1; padding: 20px; background: #f9f9f9; border-left: 3px solid #bc9c22;">
+      <div style="display: flex; justify-content: space-between; align-items: stretch; margin-top: 30px; gap: 30px;">
+        <div style="flex: 1; padding: 20px; background: #f9f9f9; border-left: 3px solid #bc9c22; display: flex; flex-direction: column;">
           <h3 style="font-size: 13px; margin-bottom: 15px; font-weight: bold; color: #333;">Payment Details</h3>
-          <div style="font-size: 12px; line-height: 2; color: #333;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <div style="font-size: 12px; line-height: 1.8; color: #333;">
+            <div style="margin-bottom: 6px;">
               <span style="font-weight: 600;">Account Name:</span>
-              <span>Trader Brothers Ltd</span>
+              <span style="margin-left: 10px;">Trader Brothers Ltd</span>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <div style="margin-bottom: 6px;">
               <span style="font-weight: 600;">Account Number:</span>
-              <span>24049254</span>
+              <span style="margin-left: 10px;">12345678</span>
             </div>
-            <div style="display: flex; justify-content: space-between;">
+            <div>
               <span style="font-weight: 600;">Sort Code:</span>
-              <span>04-06-05</span>
+              <span style="margin-left: 10px;">12-34-56</span>
             </div>
           </div>
         </div>
