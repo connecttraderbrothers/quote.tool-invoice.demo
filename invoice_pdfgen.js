@@ -162,7 +162,7 @@ function previewInvoice() {
 
       <div class="notes-section-preview">
         <h3>Payment Terms:</h3>
-        <p>Payment due within ${paymentDueDays} days from invoice date. Please make payment to the account details provided separately.</p>
+        <p>Payment due within ${paymentDueDays} days from invoice date. Please make payment to the account details provided below.</p>
         ${customNotes ? '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;"><h3 style="font-size: 13px; margin-bottom: 10px; color: #333;">Additional Notes:</h3><p style="font-size: 12px; line-height: 1.8; color: #666; white-space: pre-wrap;">' + customNotes + '</p></div>' : ''}
       </div>
 
@@ -662,7 +662,7 @@ function generateInvoiceHTML() {
 
       <div class="payment-terms">
         <h3>Payment Terms:</h3>
-        <p>Payment due within ${paymentDueDays} days from invoice date. Please make payment to the account details provided separately. Thank you for your business.</p>
+        <p>Payment due within ${paymentDueDays} days from invoice date. Please make payment to the account details provided below.</p>
       </div>
       ${customNotes ? '<div class="payment-terms" style="margin-top: 20px;"><h3>Additional Notes:</h3><p style="white-space: pre-wrap;">' + customNotes + '</p></div>' : ''}
 
