@@ -2,6 +2,7 @@ var invoiceItems = [];
 var currentInvoiceRateType = 'job';
 var invoiceNumber = 1;
 var editingInvoiceIndex = -1;
+var includeVAT = true;
 
 // Edinburgh 2025 standard trade rates (same as quotation tool)
 var invoiceTradeRates = {
@@ -327,6 +328,11 @@ function repositionInvoiceItem(index) {
     updateInvoiceTable();
 }
 
+function toggleVAT() {
+    includeVAT = !includeVAT;
+    updateInvoiceTable();
+}
+
 function updateInvoiceTable() {
     var tbody = document.getElementById('invoiceItems');
     var itemsSection = document.getElementById('invoiceItemsSection');
@@ -368,18 +374,34 @@ function updateInvoiceTable() {
     }
 
     var vat = subtotal * 0.20;
-    var total = subtotal + vat;
+    var total = includeVAT ? subtotal + vat : subtotal;
     
     html += '<tr class="total-row">';
     html += '<td colspan="4" class="text-right">Subtotal:</td>';
     html += '<td class="text-right">£' + subtotal.toFixed(2) + '</td>';
     html += '<td></td>';
     html += '</tr>';
-    html += '<tr class="total-row">';
-    html += '<td colspan="4" class="text-right">VAT (20%):</td>';
-    html += '<td class="text-right">£' + vat.toFixed(2) + '</td>';
-    html += '<td></td>';
-    html += '</tr>';
+    
+    if (includeVAT) {
+        html += '<tr class="total-row">';
+        html += '<td colspan="3" class="text-right">';
+        html += '<button class="btn-action" onclick="toggleVAT()" style="padding: 5px 10px; font-size: 12px; background: #ef4444; color: white;" title="Remove VAT">Remove VAT</button>';
+        html += '</td>';
+        html += '<td class="text-right">VAT (20%):</td>';
+        html += '<td class="text-right">£' + vat.toFixed(2) + '</td>';
+        html += '<td></td>';
+        html += '</tr>';
+    } else {
+        html += '<tr class="total-row">';
+        html += '<td colspan="3" class="text-right">';
+        html += '<button class="btn-action" onclick="toggleVAT()" style="padding: 5px 10px; font-size: 12px; background: #10b981; color: white;" title="Add VAT">Add VAT (20%)</button>';
+        html += '</td>';
+        html += '<td class="text-right">VAT:</td>';
+        html += '<td class="text-right">N/A</td>';
+        html += '<td></td>';
+        html += '</tr>';
+    }
+    
     html += '<tr class="total-row">';
     html += '<td colspan="4" class="text-right" style="font-size: 16px;"><strong>TOTAL:</strong></td>';
     html += '<td class="text-right" style="font-size: 16px;"><strong>£' + total.toFixed(2) + '</strong></td>';
