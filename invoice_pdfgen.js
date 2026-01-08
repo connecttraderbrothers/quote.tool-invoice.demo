@@ -26,7 +26,7 @@ function previewInvoice() {
     for (var j = 0; j < invoiceItems.length; j++) {
         subtotal += invoiceItems[j].lineTotal;
     }
-    var vat = subtotal * 0.20;
+    var vat = includeVAT ? subtotal * 0.20 : 0;
     var total = subtotal + vat;
 
     var statusBadge = '';
@@ -192,12 +192,12 @@ function previewInvoice() {
             <span>Subtotal</span>
             <span>£${subtotal.toFixed(2)}</span>
           </div>
-          <div class="total-row-preview vat">
+          ${includeVAT ? `<div class="total-row-preview vat">
             <span>VAT (20%)</span>
             <span>£${vat.toFixed(2)}</span>
-          </div>
+          </div>` : ''}
           <div class="total-row-preview final">
-            <span>Amount Due</span>
+            <span>Amount Due${includeVAT ? '' : ' (No VAT)'}</span>
             <span>£${total.toFixed(2)}</span>
           </div>
         </div>
@@ -356,7 +356,7 @@ function generateInvoiceHTML() {
     for (var j = 0; j < invoiceItems.length; j++) {
         subtotal += invoiceItems[j].lineTotal;
     }
-    var vat = subtotal * 0.20;
+    var vat = includeVAT ? subtotal * 0.20 : 0;
     var total = subtotal + vat;
 
     var statusBadge = '';
