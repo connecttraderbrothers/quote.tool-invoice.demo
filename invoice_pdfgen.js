@@ -15,7 +15,6 @@ function previewInvoice() {
     var customerId = document.getElementById('invoiceCustomerId').value || 'N/A';
     var paymentDueDays = document.getElementById('paymentDueDays').value || '30';
     var paymentStatus = document.getElementById('paymentStatus').value;
-    var customNotes = document.getElementById('invoiceCustomNotes').value;
     
     var today = new Date();
     var invoiceDate = today.toLocaleDateString('en-GB');
@@ -26,7 +25,7 @@ function previewInvoice() {
     for (var j = 0; j < invoiceItems.length; j++) {
         subtotal += invoiceItems[j].lineTotal;
     }
-    var vat = includeVAT ? subtotal * 0.20 : 0;
+    var vat = subtotal * 0.20;
     var total = subtotal + vat;
 
     var statusBadge = '';
@@ -71,6 +70,8 @@ function previewInvoice() {
       .total-row-preview.subtotal { border-top: 1px solid #ddd; }
       .total-row-preview.vat { color: #666; }
       .total-row-preview.final { background: linear-gradient(135deg, #bc9c22, #d4af37); color: white; font-weight: bold; font-size: 16px; border-top: 2px solid #333; margin-top: 5px; }
+      .footer-note-preview { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; font-size: 11px; color: #666; font-style: italic; }
+      .thank-you-preview { margin-top: 15px; font-weight: bold; color: #333; font-size: 12px; }
     </style>
     <div class="invoice-container-preview">
       <div class="header-preview">
@@ -89,7 +90,7 @@ function previewInvoice() {
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <div class="invoice-banner-preview">Invoice for</div>
+        <div class="invoice-banner-preview">INVOICE</div>
         <div>${statusBadge}</div>
       </div>
 
@@ -162,53 +163,30 @@ function previewInvoice() {
 
       <div class="notes-section-preview">
         <h3>Payment Terms:</h3>
-        <p>Payment due within ${paymentDueDays} days from invoice date. Please make payment to the account details provided below.</p>
-        ${customNotes ? '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;"><h3 style="font-size: 13px; margin-bottom: 10px; color: #333;">Additional Notes:</h3><p style="font-size: 12px; line-height: 1.8; color: #666; white-space: pre-wrap;">' + customNotes + '</p></div>' : ''}
+        <p>Payment due within ${paymentDueDays} days from invoice date. Please make payment to the account details provided separately.</p>
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; gap: 30px;">
-        <div style="flex: 1; max-width: 350px;">
-          <div style="padding: 15px 20px; background: #f9f9f9; border-left: 3px solid #bc9c22; display: inline-block; width: 100%;">
-            <h3 style="font-size: 13px; margin-bottom: 10px; font-weight: bold; color: #333;">Payment Details</h3>
-            <div style="font-size: 12px; line-height: 1.6; color: #333;">
-              <div style="margin-bottom: 4px;">
-                <span style="font-weight: 600;">Account Name:</span>
-                <span style="margin-left: 10px;">Trader Brothers Ltd</span>
-              </div>
-              <div style="margin-bottom: 4px;">
-                <span style="font-weight: 600;">Account Number:</span>
-                <span style="margin-left: 10px;">24049254</span>
-              </div>
-              <div>
-                <span style="font-weight: 600;">Sort Code:</span>
-                <span style="margin-left: 10px;">04-06-05</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div class="totals-section-preview">
         <div class="totals-box-preview">
           <div class="total-row-preview subtotal">
             <span>Subtotal</span>
             <span>£${subtotal.toFixed(2)}</span>
           </div>
-          ${includeVAT ? `<div class="total-row-preview vat">
+          <div class="total-row-preview vat">
             <span>VAT (20%)</span>
             <span>£${vat.toFixed(2)}</span>
-          </div>` : ''}
+          </div>
           <div class="total-row-preview final">
-            <span>Amount Due${includeVAT ? '' : ' (No VAT)'}</span>
+            <span>Amount Due</span>
             <span>£${total.toFixed(2)}</span>
           </div>
         </div>
       </div>
 
-      <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center;">
-        <div style="font-size: 11px; color: #666; font-style: italic;">
-          If you have any questions about this invoice, please contact<br>
-          us at traderbrotherslimited@gmail.com, or 07931810557
-        </div>
-        <div style="margin-top: 10px; font-weight: bold; color: #333; font-size: 12px;">Thank you for your business</div>
+      <div class="footer-note-preview">
+        If you have any questions about this invoice, please contact<br>
+        Trader Brothers on 07979309957
+        <div class="thank-you-preview">Thank you for your business</div>
       </div>
     </div>`;
 
@@ -345,7 +323,6 @@ function generateInvoiceHTML() {
     var customerId = document.getElementById('invoiceCustomerId').value || 'N/A';
     var paymentDueDays = document.getElementById('paymentDueDays').value || '30';
     var paymentStatus = document.getElementById('paymentStatus').value;
-    var customNotes = document.getElementById('invoiceCustomNotes').value;
     
     var today = new Date();
     var invoiceDate = today.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' ');
@@ -356,7 +333,7 @@ function generateInvoiceHTML() {
     for (var j = 0; j < invoiceItems.length; j++) {
         subtotal += invoiceItems[j].lineTotal;
     }
-    var vat = includeVAT ? subtotal * 0.20 : 0;
+    var vat = subtotal * 0.20;
     var total = subtotal + vat;
 
     var statusBadge = '';
@@ -558,6 +535,21 @@ function generateInvoiceHTML() {
         border-top: 2px solid #333;
         margin-top: 5px;
       }
+      .footer-note {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+        text-align: center;
+        font-size: 11px;
+        color: #666;
+        font-style: italic;
+      }
+      .thank-you {
+        margin-top: 15px;
+        font-weight: bold;
+        color: #333;
+        font-size: 12px;
+      }
       @media print {
         body {
           background: white;
@@ -589,7 +581,7 @@ function generateInvoiceHTML() {
       </div>
 
       <div class="invoice-header-section">
-        <div class="invoice-banner">Invoice for</div>
+        <div class="invoice-banner">INVOICE</div>
         <div class="status-badge">${statusBadge}</div>
       </div>
 
@@ -662,31 +654,10 @@ function generateInvoiceHTML() {
 
       <div class="payment-terms">
         <h3>Payment Terms:</h3>
-        <p>Payment due within ${paymentDueDays} days from invoice date. Please make payment to the account details provided below.</p>
+        <p>Payment due within ${paymentDueDays} days from invoice date. Please make payment to the account details provided separately. Thank you for your business.</p>
       </div>
-      ${customNotes ? '<div class="payment-terms" style="margin-top: 20px;"><h3>Additional Notes:</h3><p style="white-space: pre-wrap;">' + customNotes + '</p></div>' : ''}
 
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 30px; gap: 30px;">
-        <div style="flex: 1; max-width: 350px;">
-          <div style="padding: 15px 20px; background: #f9f9f9; border-left: 3px solid #bc9c22; display: inline-block; width: 100%;">
-            <h3 style="font-size: 13px; margin-bottom: 10px; font-weight: bold; color: #333;">Payment Details</h3>
-            <div style="font-size: 12px; line-height: 1.6; color: #333;">
-              <div style="margin-bottom: 4px;">
-                <span style="font-weight: 600;">Account Name:</span>
-                <span style="margin-left: 10px;">Trader Brothers Ltd</span>
-              </div>
-              <div style="margin-bottom: 4px;">
-                <span style="font-weight: 600;">Account Number:</span>
-                <span style="margin-left: 10px;">24049254</span>
-              </div>
-              <div>
-                <span style="font-weight: 600;">Sort Code:</span>
-                <span style="margin-left: 10px;">04-06-05</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div class="totals-section">
         <div class="totals-box">
           <div class="total-row subtotal">
             <span>Subtotal</span>
@@ -703,11 +674,10 @@ function generateInvoiceHTML() {
         </div>
       </div>
 
-      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center;">
-        <div style="font-size: 11px; color: #666; font-style: italic;">
-          If you have any questions about this invoice, please contact us at traderbrotherslimited@gmail.com, or 07931 810557
-        </div>
-        <div style="margin-top: 10px; font-weight: bold; color: #333; font-size: 12px;">Thank you for your business</div>
+      <div class="footer-note">
+        If you have any questions about this invoice, please contact<br>
+        us at traderbrotherslimited@gmail.com, or 07979 309957 
+        <div class="thank-you">Thank you for your business</div>
       </div>
     </div>`;
 
@@ -721,13 +691,3 @@ function generateInvoiceHTML() {
 </head>
 <body>
   ${bodyContent}
-</body>
-</html>`;
-}
-
-window.onclick = function(event) {
-    var modal = document.getElementById('invoicePreviewModal');
-    if (event.target == modal) {
-        closeInvoicePreview();
-    }
-};
