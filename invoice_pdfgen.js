@@ -16,7 +16,6 @@ function previewInvoice() {
     var paymentDueDays = document.getElementById('paymentDueDays').value || '30';
     var paymentStatus = document.getElementById('paymentStatus').value;
     var deduction = parseFloat(document.getElementById('invoiceDeduction').value) || 0;
-    var deduction = parseFloat(document.getElementById('invoiceDeduction').value) || 0;
     
     var today = new Date();
     var invoiceDate = today.toLocaleDateString('en-GB');
@@ -29,7 +28,6 @@ function previewInvoice() {
     }
     var vat = subtotal * 0.20;
     var total = subtotal + vat;
-    var amountDue = total - deduction;
     var amountDue = total - deduction;
 
     var statusBadge = '';
@@ -363,6 +361,7 @@ function generateInvoiceHTML() {
     var customerId = document.getElementById('invoiceCustomerId').value || 'N/A';
     var paymentDueDays = document.getElementById('paymentDueDays').value || '30';
     var paymentStatus = document.getElementById('paymentStatus').value;
+    var deduction = parseFloat(document.getElementById('invoiceDeduction').value) || 0;
     
     var today = new Date();
     var invoiceDate = today.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' ');
@@ -375,6 +374,7 @@ function generateInvoiceHTML() {
     }
     var vat = subtotal * 0.20;
     var total = subtotal + vat;
+    var amountDue = total - deduction;
 
     // Sort items by category
     var sortedItems = sortInvoiceItemsByCategory(invoiceItems);
@@ -668,6 +668,7 @@ function generateInvoiceHTML() {
         <div class="client-info">
           <div class="info-row">
             <span class="info-label">Name:</span>
+            <span class="info-value">${clientName}</span> class="info-label">Name:</span>
             <span class="info-value">${clientName}</span>
           </div>
           <div class="info-row">
