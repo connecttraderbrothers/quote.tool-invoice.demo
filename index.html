@@ -485,6 +485,15 @@
                 </div>
             </div>
 
+            <div class="section" id="invoiceDeductionSection">
+                <h2 class="section-title">Deductions (Optional)</h2>
+                <div class="form-group">
+                    <label for="invoiceDeduction">Deduction Amount (£)</label>
+                    <input type="number" id="invoiceDeduction" step="0.01" min="0" value="0" placeholder="0.00">
+                    <small style="display: block; margin-top: 5px; color: #666; font-size: 12px;">Enter any amount to deduct from the total (after VAT)</small>
+                </div>
+            </div>
+
             <div id="generateInvoiceSection" style="display: none; margin-top: 20px; text-align: center;">
                 <button class="btn btn-success" onclick="previewInvoice()">Preview Invoice</button>
                 <button class="btn btn-secondary" onclick="downloadInvoice()">Download PDF</button>
