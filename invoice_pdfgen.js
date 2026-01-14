@@ -15,6 +15,8 @@ function previewInvoice() {
     var customerId = document.getElementById('invoiceCustomerId').value || 'N/A';
     var paymentDueDays = document.getElementById('paymentDueDays').value || '30';
     var paymentStatus = document.getElementById('paymentStatus').value;
+    var deduction = parseFloat(document.getElementById('invoiceDeduction').value) || 0;
+    var deduction = parseFloat(document.getElementById('invoiceDeduction').value) || 0;
     
     var today = new Date();
     var invoiceDate = today.toLocaleDateString('en-GB');
@@ -27,6 +29,8 @@ function previewInvoice() {
     }
     var vat = subtotal * 0.20;
     var total = subtotal + vat;
+    var amountDue = total - deduction;
+    var amountDue = total - deduction;
 
     var statusBadge = '';
     if (paymentStatus === 'paid') {
@@ -203,9 +207,17 @@ function previewInvoice() {
               <span>VAT (20%)</span>
               <span>£${vat.toFixed(2)}</span>
             </div>
+            <div class="total-row-preview subtotal">
+              <span>Total</span>
+              <span>£${total.toFixed(2)}</span>
+            </div>
+            ${deduction > 0 ? `<div class="total-row-preview vat">
+              <span>Deduction</span>
+              <span>-£${deduction.toFixed(2)}</span>
+            </div>` : ''}
             <div class="total-row-preview final">
               <span>Amount Due</span>
-              <span>£${total.toFixed(2)}</span>
+              <span>£${amountDue.toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -737,8 +749,8 @@ function generateInvoiceHTML() {
         <div class="bank-details">
           <h3>Bank Details:</h3>
           <p><strong>Account Name:</strong> Trader Brothers Ltd</p>
-          <p><strong>Sort Code:</strong> 04-06-05</p>
-          <p><strong>Account Number:</strong> 24049254</p>
+          <p><strong>Sort Code:</strong> 04-00-04</p>
+          <p><strong>Account Number:</strong> 92404732</p>
         </div>
 
         <div class="totals-section">
@@ -751,9 +763,17 @@ function generateInvoiceHTML() {
               <span>VAT (20%)</span>
               <span>£${vat.toFixed(2)}</span>
             </div>
+            <div class="total-row subtotal">
+              <span>Total</span>
+              <span>£${total.toFixed(2)}</span>
+            </div>
+            ${deduction > 0 ? `<div class="total-row vat">
+              <span>Deduction</span>
+              <span>-£${deduction.toFixed(2)}</span>
+            </div>` : ''}
             <div class="total-row final">
               <span>Amount Due</span>
-              <span>£${total.toFixed(2)}</span>
+              <span>£${amountDue.toFixed(2)}</span>
             </div>
           </div>
         </div>
