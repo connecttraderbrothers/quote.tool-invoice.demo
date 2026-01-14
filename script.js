@@ -627,7 +627,7 @@ function previewQuote() {
           </div>
           <div class="total-row-preview final">
             <span>Total</span>
-            <span>£${total.toFixed(2)
+            <span>£${total.toFixed(2)}</span>
           </div>
          </div>
         </div>
