@@ -37,6 +37,10 @@ function previewInvoice() {
         statusBadge = '<span style="background: #ef4444; color: white; padding: 5px 15px; border-radius: 4px; font-weight: bold;">UNPAID</span>';
     }
 
+    // Sort items by category
+    var sortedItems = sortInvoiceItemsByCategory(invoiceItems);
+    var groupedItems = groupInvoiceItemsByCategory(sortedItems);
+
     var previewHtml = `
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,6 +65,8 @@ function previewInvoice() {
       .items-table-preview th:nth-child(2), .items-table-preview th:nth-child(3), .items-table-preview th:nth-child(4) { text-align: right; width: 100px; }
       .items-table-preview td { padding: 12px; font-size: 13px; border-bottom: 1px solid #eee; color: #333; }
       .items-table-preview td:nth-child(2), .items-table-preview td:nth-child(3), .items-table-preview td:nth-child(4) { text-align: right; }
+      .category-row { background: #f9f9f9; font-weight: bold; color: #333; }
+      .category-row td { padding: 10px 12px; border-bottom: 2px solid #ddd; }
       .notes-section-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 3px solid #bc9c22; }
       .notes-section-preview h3 { font-size: 13px; margin-bottom: 10px; color: #333; }
       .notes-section-preview p { font-size: 12px; line-height: 1.8; color: #666; }
@@ -146,16 +152,25 @@ function previewInvoice() {
         </thead>
         <tbody>`;
 
-    for (var i = 0; i < invoiceItems.length; i++) {
-        var item = invoiceItems[i];
-        previewHtml += `
+    // Render items grouped and sorted by category
+    categoryOrder.forEach(function(category) {
+        if (groupedItems[category]) {
+            previewHtml += `
+          <tr class="category-row">
+            <td colspan="4"><strong>${category}</strong></td>
+          </tr>`;
+            
+            groupedItems[category].forEach(function(item) {
+                previewHtml += `
           <tr>
             <td>${item.description}</td>
             <td>${item.quantity}</td>
             <td>£${item.unitPrice.toFixed(2)}</td>
             <td>£${item.lineTotal.toFixed(2)}</td>
           </tr>`;
-    }
+            });
+        }
+    });
 
     previewHtml += `
         </tbody>
@@ -336,6 +351,10 @@ function generateInvoiceHTML() {
     var vat = subtotal * 0.20;
     var total = subtotal + vat;
 
+    // Sort items by category
+    var sortedItems = sortInvoiceItemsByCategory(invoiceItems);
+    var groupedItems = groupInvoiceItemsByCategory(sortedItems);
+
     var statusBadge = '';
     var statusColor = '';
     if (paymentStatus === 'paid') {
@@ -491,6 +510,15 @@ function generateInvoiceHTML() {
       .items-table td:nth-child(4) {
         text-align: right;
       }
+      .category-row {
+        background: #f9f9f9;
+        font-weight: bold;
+        color: #333;
+      }
+      .category-row td {
+        padding: 10px 12px;
+        border-bottom: 2px solid #ddd;
+      }
       .payment-terms {
         margin: 30px 0;
         padding: 20px;
@@ -637,16 +665,25 @@ function generateInvoiceHTML() {
         </thead>
         <tbody>`;
 
-    for (var i = 0; i < invoiceItems.length; i++) {
-        var item = invoiceItems[i];
-        bodyContent += `
+    // Render items grouped and sorted by category
+    categoryOrder.forEach(function(category) {
+        if (groupedItems[category]) {
+            bodyContent += `
+          <tr class="category-row">
+            <td colspan="4"><strong>${category}</strong></td>
+          </tr>`;
+            
+            groupedItems[category].forEach(function(item) {
+                bodyContent += `
           <tr>
             <td>${item.description}</td>
             <td>${item.quantity}</td>
             <td>£${item.unitPrice.toFixed(2)}</td>
             <td>£${item.lineTotal.toFixed(2)}</td>
           </tr>`;
-    }
+            });
+        }
+    });
 
     bodyContent += `
         </tbody>
@@ -691,3 +728,6 @@ function generateInvoiceHTML() {
 </head>
 <body>
   ${bodyContent}
+</body>
+</html>`;
+}
