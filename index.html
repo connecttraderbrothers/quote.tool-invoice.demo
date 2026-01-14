@@ -499,6 +499,11 @@
                 </div>
                 <div class="modal-body" id="invoicePreviewBody">
                 </div>
+                <div class="form-group">
+                  <label for="invoiceDeduction">Deduction Amount (£)</label>
+                  <input type="number" id="invoiceDeduction" step="0.01" min="0" value="0" placeholder="0.00">
+                  <small>Enter any amount to deduct from the total (after VAT)</small>
+               </div>
                 <div class="modal-footer">
                     <button class="btn btn-success" onclick="downloadInvoice()">Download PDF</button>
                     <button class="btn btn-secondary" onclick="closeInvoicePreview()">Close</button>
@@ -506,12 +511,6 @@
             </div>
         </div>
     </div>
-
-    <div class="form-group">
-  <label for="invoiceDeduction">Deduction Amount (£)</label>
-  <input type="number" id="invoiceDeduction" step="0.01" min="0" value="0" placeholder="0.00">
-  <small>Enter any amount to deduct from the total (after VAT)</small>
-</div>
     
     <!-- Matrix Animation Script -->
     <script>
