@@ -2,7 +2,35 @@ var invoiceItems = [];
 var currentInvoiceRateType = 'job';
 var invoiceNumber = 1;
 var editingInvoiceIndex = -1;
-var includeVAT = true;
+
+// Define category order (matches dropdown menu order)
+var categoryOrder = [
+    'Downtakings',
+    'General Building',
+    'Building work',
+    'Carpentry',
+    'Joinery',
+    'Electrical',
+    'Electricals',
+    'Plumbing',
+    'Gas work/Plumbing',
+    'Plastering',
+    'Skimming /Painting',
+    'Painting & Decorating',
+    'Tiling',
+    'Roofing',
+    'Kitchen Fitting',
+    'Bathroom Fitting',
+    'Bathrooms',
+    'Flooring',
+    'Bricklaying',
+    'HVAC',
+    'Groundworks',
+    'Scaffolding',
+    'Glazing',
+    'Insulation',
+    'Materials'
+];
 
 // Edinburgh 2025 standard trade rates (same as quotation tool)
 var invoiceTradeRates = {
@@ -328,9 +356,29 @@ function repositionInvoiceItem(index) {
     updateInvoiceTable();
 }
 
-function toggleVAT() {
-    includeVAT = !includeVAT;
-    updateInvoiceTable();
+// Helper function to sort items by category order
+function sortInvoiceItemsByCategory(itemsArray) {
+    return itemsArray.slice().sort(function(a, b) {
+        var indexA = categoryOrder.indexOf(a.category);
+        var indexB = categoryOrder.indexOf(b.category);
+        
+        if (indexA === -1) indexA = 999;
+        if (indexB === -1) indexB = 999;
+        
+        return indexA - indexB;
+    });
+}
+
+// Helper function to group items by category
+function groupInvoiceItemsByCategory(itemsArray) {
+    var grouped = {};
+    itemsArray.forEach(function(item) {
+        if (!grouped[item.category]) {
+            grouped[item.category] = [];
+        }
+        grouped[item.category].push(item);
+    });
+    return grouped;
 }
 
 function updateInvoiceTable() {
@@ -374,34 +422,18 @@ function updateInvoiceTable() {
     }
 
     var vat = subtotal * 0.20;
-    var total = includeVAT ? subtotal + vat : subtotal;
+    var total = subtotal + vat;
     
     html += '<tr class="total-row">';
     html += '<td colspan="4" class="text-right">Subtotal:</td>';
     html += '<td class="text-right">£' + subtotal.toFixed(2) + '</td>';
     html += '<td></td>';
     html += '</tr>';
-    
-    if (includeVAT) {
-        html += '<tr class="total-row">';
-        html += '<td colspan="3" class="text-right">';
-        html += '<button class="btn-action" onclick="toggleVAT()" style="padding: 5px 10px; font-size: 12px; background: #ef4444; color: white;" title="Remove VAT">Remove VAT</button>';
-        html += '</td>';
-        html += '<td class="text-right">VAT (20%):</td>';
-        html += '<td class="text-right">£' + vat.toFixed(2) + '</td>';
-        html += '<td></td>';
-        html += '</tr>';
-    } else {
-        html += '<tr class="total-row">';
-        html += '<td colspan="3" class="text-right">';
-        html += '<button class="btn-action" onclick="toggleVAT()" style="padding: 5px 10px; font-size: 12px; background: #10b981; color: white;" title="Add VAT">Add VAT (20%)</button>';
-        html += '</td>';
-        html += '<td class="text-right">VAT:</td>';
-        html += '<td class="text-right">N/A</td>';
-        html += '<td></td>';
-        html += '</tr>';
-    }
-    
+    html += '<tr class="total-row">';
+    html += '<td colspan="4" class="text-right">VAT (20%):</td>';
+    html += '<td class="text-right">£' + vat.toFixed(2) + '</td>';
+    html += '<td></td>';
+    html += '</tr>';
     html += '<tr class="total-row">';
     html += '<td colspan="4" class="text-right" style="font-size: 16px;"><strong>TOTAL:</strong></td>';
     html += '<td class="text-right" style="font-size: 16px;"><strong>£' + total.toFixed(2) + '</strong></td>';
