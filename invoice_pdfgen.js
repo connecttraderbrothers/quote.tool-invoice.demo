@@ -67,9 +67,13 @@ function previewInvoice() {
       .items-table-preview td:nth-child(2), .items-table-preview td:nth-child(3), .items-table-preview td:nth-child(4) { text-align: right; }
       .category-row { background: #f9f9f9; font-weight: bold; color: #333; }
       .category-row td { padding: 10px 12px; border-bottom: 2px solid #ddd; }
-      .notes-section-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 3px solid #bc9c22; }
-      .notes-section-preview h3 { font-size: 13px; margin-bottom: 10px; color: #333; }
-      .notes-section-preview p { font-size: 12px; line-height: 1.8; color: #666; }
+      .payment-terms-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 3px solid #bc9c22; }
+      .payment-terms-preview h3 { font-size: 13px; margin-bottom: 10px; color: #333; }
+      .payment-terms-preview p { font-size: 12px; line-height: 1.8; color: #666; margin-bottom: 8px; }
+      .bank-details-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 3px solid #bc9c22; }
+      .bank-details-preview h3 { font-size: 13px; margin-bottom: 10px; color: #333; }
+      .bank-details-preview p { font-size: 12px; line-height: 1.8; color: #666; margin: 5px 0; }
+      .bottom-section-preview { display: flex; gap: 30px; margin-top: 30px; align-items: flex-start; }
       .totals-section-preview { margin-top: 30px; display: flex; justify-content: flex-end; }
       .totals-box-preview { width: 300px; }
       .total-row-preview { display: flex; justify-content: space-between; padding: 10px 15px; font-size: 13px; }
@@ -176,24 +180,33 @@ function previewInvoice() {
         </tbody>
       </table>
 
-      <div class="notes-section-preview">
+      <div class="payment-terms-preview">
         <h3>Payment Terms:</h3>
-        <p>Payment due within ${paymentDueDays} days from invoice date. Please make payment to the account details provided separately.</p>
+        <p>Payment due within ${paymentDueDays} days from invoice date.</p>
       </div>
 
-      <div class="totals-section-preview">
-        <div class="totals-box-preview">
-          <div class="total-row-preview subtotal">
-            <span>Subtotal</span>
-            <span>£${subtotal.toFixed(2)}</span>
-          </div>
-          <div class="total-row-preview vat">
-            <span>VAT (20%)</span>
-            <span>£${vat.toFixed(2)}</span>
-          </div>
-          <div class="total-row-preview final">
-            <span>Amount Due</span>
-            <span>£${total.toFixed(2)}</span>
+      <div class="bottom-section-preview">
+        <div class="bank-details-preview" style="flex: 1;">
+          <h3>Bank Details:</h3>
+          <p><strong>Account Name:</strong> Trader Brothers Ltd</p>
+          <p><strong>Sort Code:</strong> 04-00-04</p>
+          <p><strong>Account Number:</strong> 92404732</p>
+        </div>
+
+        <div class="totals-section-preview" style="flex: 0 0 auto;">
+          <div class="totals-box-preview">
+            <div class="total-row-preview subtotal">
+              <span>Subtotal</span>
+              <span>£${subtotal.toFixed(2)}</span>
+            </div>
+            <div class="total-row-preview vat">
+              <span>VAT (20%)</span>
+              <span>£${vat.toFixed(2)}</span>
+            </div>
+            <div class="total-row-preview final">
+              <span>Amount Due</span>
+              <span>£${total.toFixed(2)}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -534,11 +547,37 @@ function generateInvoiceHTML() {
         font-size: 12px;
         line-height: 1.8;
         color: #666;
+        margin-bottom: 8px;
+      }
+      .bank-details {
+        margin: 30px 0;
+        padding: 20px;
+        background: #f9f9f9;
+        border-left: 3px solid #bc9c22;
+        flex: 1;
+      }
+      .bank-details h3 {
+        font-size: 13px;
+        margin-bottom: 10px;
+        color: #333;
+      }
+      .bank-details p {
+        font-size: 12px;
+        line-height: 1.8;
+        color: #666;
+        margin: 5px 0;
+      }
+      .bottom-section {
+        display: flex;
+        gap: 30px;
+        margin-top: 30px;
+        align-items: flex-start;
       }
       .totals-section {
         margin-top: 30px;
         display: flex;
         justify-content: flex-end;
+        flex: 0 0 auto;
       }
       .totals-box {
         width: 300px;
@@ -691,22 +730,31 @@ function generateInvoiceHTML() {
 
       <div class="payment-terms">
         <h3>Payment Terms:</h3>
-        <p>Payment due within ${paymentDueDays} days from invoice date. Please make payment to the account details provided separately. Thank you for your business.</p>
+        <p>Payment due within ${paymentDueDays} days from invoice date.</p>
       </div>
 
-      <div class="totals-section">
-        <div class="totals-box">
-          <div class="total-row subtotal">
-            <span>Subtotal</span>
-            <span>£${subtotal.toFixed(2)}</span>
-          </div>
-          <div class="total-row vat">
-            <span>VAT (20%)</span>
-            <span>£${vat.toFixed(2)}</span>
-          </div>
-          <div class="total-row final">
-            <span>Amount Due</span>
-            <span>£${total.toFixed(2)}</span>
+      <div class="bottom-section">
+        <div class="bank-details">
+          <h3>Bank Details:</h3>
+          <p><strong>Account Name:</strong> Trader Brothers Ltd</p>
+          <p><strong>Sort Code:</strong> 04-06-05</p>
+          <p><strong>Account Number:</strong> 24049254</p>
+        </div>
+
+        <div class="totals-section">
+          <div class="totals-box">
+            <div class="total-row subtotal">
+              <span>Subtotal</span>
+              <span>£${subtotal.toFixed(2)}</span>
+            </div>
+            <div class="total-row vat">
+              <span>VAT (20%)</span>
+              <span>£${vat.toFixed(2)}</span>
+            </div>
+            <div class="total-row final">
+              <span>Amount Due</span>
+              <span>£${total.toFixed(2)}</span>
+            </div>
           </div>
         </div>
       </div>
