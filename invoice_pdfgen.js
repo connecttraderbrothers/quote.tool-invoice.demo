@@ -193,8 +193,8 @@ function previewInvoice() {
         <div class="bank-details-preview" style="flex: 1;">
           <h3>Bank Details:</h3>
           <p><strong>Account Name:</strong> Trader Brothers Ltd</p>
-          <p><strong>Sort Code:</strong> 04-00-04</p>
-          <p><strong>Account Number:</strong> 92404732</p>
+          <p><strong>Sort Code:</strong> 04-06-05</p>
+          <p><strong>Account Number:</strong> 24049254</p>
         </div>
 
         <div class="totals-section-preview" style="flex: 0 0 auto;">
@@ -225,7 +225,7 @@ function previewInvoice() {
 
       <div class="footer-note-preview">
         If you have any questions about this invoice, please contact<br>
-        Trader Brothers on 07979309957
+        us at traderbrotherslimited@gmail.com on 07931 810557
         <div class="thank-you-preview">Thank you for your business</div>
       </div>
     </div>`;
@@ -749,8 +749,8 @@ function generateInvoiceHTML() {
         <div class="bank-details">
           <h3>Bank Details:</h3>
           <p><strong>Account Name:</strong> Trader Brothers Ltd</p>
-          <p><strong>Sort Code:</strong> 04-00-04</p>
-          <p><strong>Account Number:</strong> 92404732</p>
+          <p><strong>Sort Code:</strong> 04-06-05</p>
+          <p><strong>Account Number:</strong> 24049254</p>
         </div>
 
         <div class="totals-section">
@@ -781,7 +781,7 @@ function generateInvoiceHTML() {
 
       <div class="footer-note">
         If you have any questions about this invoice, please contact<br>
-        us at traderbrotherslimited@gmail.com, or 07979 309957 
+        us at traderbrotherslimited@gmail.com, or 07931 810557 
         <div class="thank-you">Thank you for your business</div>
       </div>
     </div>`;
