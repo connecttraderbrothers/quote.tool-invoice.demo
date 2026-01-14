@@ -628,3 +628,28 @@ function previewQuote() {
           <div class="total-row-preview final">
             <span>Total</span>
             <span>£${total.toFixed(2)
+          </div>
+         </div>
+        </div>
+
+      <div class="footer-note-preview">
+        If you have any questions about this estimate, please contact<br>
+        traderbrotherslimited@gmail.com, or 07931 810557
+        <div class="thank-you-preview">Thank you for your business</div>
+      </div>
+    </div>`;
+
+    document.getElementById('previewBody').innerHTML = previewHtml;
+    document.getElementById('previewModal').style.display = 'block';
+}
+
+function closePreview() {
+    document.getElementById('previewModal').style.display = 'none';
+}
+
+window.onclick = function(event) {
+    var modal = document.getElementById('previewModal');
+    if (event.target == modal) {
+        closePreview();
+    }
+};
