@@ -668,7 +668,7 @@ function generateInvoiceHTML() {
         <div class="client-info">
           <div class="info-row">
             <span class="info-label">Name:</span>
-            <span class="info-value">${clientName}</span> class="info-label">Name:</span>
+            <span class="info-value">${clientName}</span>
             <span class="info-value">${clientName}</span>
           </div>
           <div class="info-row">
