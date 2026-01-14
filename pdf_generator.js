@@ -23,6 +23,10 @@ function generateCompleteHTML() {
     var vat = subtotal * 0.20;
     var total = subtotal + vat;
 
+    // Sort items by category
+    var sortedItems = sortItemsByCategory(items);
+    var groupedItems = groupItemsByCategory(sortedItems);
+
     var styles = `
     <style>
       * {
@@ -151,6 +155,15 @@ function generateCompleteHTML() {
       .items-table td:nth-child(3),
       .items-table td:nth-child(4) {
         text-align: right;
+      }
+      .category-row {
+        background: #f9f9f9;
+        font-weight: bold;
+        color: #333;
+      }
+      .category-row td {
+        padding: 10px 12px;
+        border-bottom: 2px solid #ddd;
       }
       .notes-section {
         margin: 30px 0;
@@ -296,16 +309,25 @@ function generateCompleteHTML() {
         </thead>
         <tbody>`;
 
-    for (var i = 0; i < items.length; i++) {
-        var item = items[i];
-        bodyContent += `
+    // Render items grouped and sorted by category
+    categoryOrder.forEach(function(category) {
+        if (groupedItems[category]) {
+            bodyContent += `
+          <tr class="category-row">
+            <td colspan="4"><strong>${category}</strong></td>
+          </tr>`;
+            
+            groupedItems[category].forEach(function(item) {
+                bodyContent += `
           <tr>
             <td>${item.description}</td>
             <td>${item.quantity}</td>
             <td>£${item.unitPrice.toFixed(2)}</td>
             <td>£${item.lineTotal.toFixed(2)}</td>
           </tr>`;
-    }
+            });
+        }
+    });
 
     bodyContent += `
         </tbody>
