@@ -71,6 +71,20 @@ function updateInvoiceCounter() {
     document.getElementById('invoiceCounter').textContent = '#' + String(invoiceNumber).padStart(4, '0');
 }
 
+function editInvoiceNumber() {
+    var current = invoiceNumber;
+    var input = prompt('Enter new invoice number:', current);
+    if (input === null) return;
+    var num = parseInt(input, 10);
+    if (isNaN(num) || num < 1) {
+        alert('Please enter a valid number (1 or greater).');
+        return;
+    }
+    invoiceNumber = num;
+    localStorage.setItem('traderBrosInvoiceCount', num - 1);
+    updateInvoiceCounter();
+}
+
 // Auto-generate Customer ID from client name
 document.getElementById('invoiceClientName').addEventListener('input', function() {
     var name = this.value.trim();
