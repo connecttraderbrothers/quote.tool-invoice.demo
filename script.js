@@ -71,6 +71,20 @@ function updateEstimateCounter() {
     document.getElementById('estimateCounter').textContent = '#' + String(estimateNumber).padStart(4, '0');
 }
 
+function editEstimateNumber() {
+    var current = estimateNumber;
+    var input = prompt('Enter new estimate number:', current);
+    if (input === null) return;
+    var num = parseInt(input, 10);
+    if (isNaN(num) || num < 1) {
+        alert('Please enter a valid number (1 or greater).');
+        return;
+    }
+    estimateNumber = num;
+    localStorage.setItem('traderBrosEstimateCount', num - 1);
+    updateEstimateCounter();
+}
+
 // Auto-generate Customer ID from client name
 document.getElementById('clientName').addEventListener('input', function() {
     var name = this.value.trim();
