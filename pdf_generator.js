@@ -21,7 +21,8 @@ function generateCompleteHTML() {
     for (var j = 0; j < items.length; j++) {
         subtotal += items[j].lineTotal;
     }
-    var vat = subtotal * 0.20;
+    var removeVat = document.getElementById('removeVat').checked;
+    var vat = removeVat ? 0 : subtotal * 0.20;
     var total = subtotal + vat;
 
     // Sort items by category
@@ -351,10 +352,7 @@ function generateCompleteHTML() {
             <span>Subtotal</span>
             <span>£${subtotal.toFixed(2)}</span>
           </div>
-          <div class="total-row vat">
-            <span>VAT</span>
-            <span>£${vat.toFixed(2)}</span>
-          </div>
+          ${!removeVat ? '<div class="total-row vat"><span>VAT (20%)</span><span>£' + vat.toFixed(2) + '</span></div>' : ''}
           <div class="total-row final">
             <span>Total</span>
             <span>£${total.toFixed(2)}</span>

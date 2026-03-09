@@ -435,19 +435,22 @@ function updateQuoteTable() {
         subtotal += items[j].lineTotal;
     }
 
-    var vat = subtotal * 0.20;
+    var removeVat = document.getElementById('removeVat').checked;
+    var vat = removeVat ? 0 : subtotal * 0.20;
     var total = subtotal + vat;
-    
+
     html += '<tr class="total-row">';
     html += '<td colspan="4" class="text-right">Subtotal:</td>';
     html += '<td class="text-right">£' + subtotal.toFixed(2) + '</td>';
     html += '<td></td>';
     html += '</tr>';
-    html += '<tr class="total-row">';
-    html += '<td colspan="4" class="text-right">VAT (20%):</td>';
-    html += '<td class="text-right">£' + vat.toFixed(2) + '</td>';
-    html += '<td></td>';
-    html += '</tr>';
+    if (!removeVat) {
+        html += '<tr class="total-row">';
+        html += '<td colspan="4" class="text-right">VAT (20%):</td>';
+        html += '<td class="text-right">£' + vat.toFixed(2) + '</td>';
+        html += '<td></td>';
+        html += '</tr>';
+    }
     html += '<tr class="total-row">';
     html += '<td colspan="4" class="text-right" style="font-size: 16px;"><strong>TOTAL:</strong></td>';
     html += '<td class="text-right" style="font-size: 16px;"><strong>£' + total.toFixed(2) + '</strong></td>';
@@ -481,7 +484,8 @@ function previewQuote() {
     for (var j = 0; j < items.length; j++) {
         subtotal += items[j].lineTotal;
     }
-    var vat = subtotal * 0.20;
+    var removeVat = document.getElementById('removeVat').checked;
+    var vat = removeVat ? 0 : subtotal * 0.20;
     var total = subtotal + vat;
 
     // Sort items by category
@@ -637,10 +641,10 @@ function previewQuote() {
             <span>Subtotal</span>
             <span>£${subtotal.toFixed(2)}</span>
           </div>
-          <div class="total-row-preview vat">
-            <span>VAT</span>
+          ${!removeVat ? `<div class="total-row-preview vat">
+            <span>VAT (20%)</span>
             <span>£${vat.toFixed(2)}</span>
-          </div>
+          </div>` : ''}
           <div class="total-row-preview final">
             <span>Total</span>
             <span>£${total.toFixed(2)}</span>
