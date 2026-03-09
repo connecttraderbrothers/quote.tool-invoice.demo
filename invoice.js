@@ -435,19 +435,22 @@ function updateInvoiceTable() {
         subtotal += invoiceItems[j].lineTotal;
     }
 
-    var vat = subtotal * 0.20;
+    var removeVat = document.getElementById('invoiceRemoveVat').checked;
+    var vat = removeVat ? 0 : subtotal * 0.20;
     var total = subtotal + vat;
-    
+
     html += '<tr class="total-row">';
     html += '<td colspan="4" class="text-right">Subtotal:</td>';
     html += '<td class="text-right">£' + subtotal.toFixed(2) + '</td>';
     html += '<td></td>';
     html += '</tr>';
-    html += '<tr class="total-row">';
-    html += '<td colspan="4" class="text-right">VAT (20%):</td>';
-    html += '<td class="text-right">£' + vat.toFixed(2) + '</td>';
-    html += '<td></td>';
-    html += '</tr>';
+    if (!removeVat) {
+        html += '<tr class="total-row">';
+        html += '<td colspan="4" class="text-right">VAT (20%):</td>';
+        html += '<td class="text-right">£' + vat.toFixed(2) + '</td>';
+        html += '<td></td>';
+        html += '</tr>';
+    }
     html += '<tr class="total-row">';
     html += '<td colspan="4" class="text-right" style="font-size: 16px;"><strong>TOTAL:</strong></td>';
     html += '<td class="text-right" style="font-size: 16px;"><strong>£' + total.toFixed(2) + '</strong></td>';

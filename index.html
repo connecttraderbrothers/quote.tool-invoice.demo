@@ -294,6 +294,13 @@
                     <label>Deposit Percentage</label>
                     <input type="number" id="depositPercent" value="30" min="0" max="100">
                 </div>
+                <div class="form-group">
+                    <label>VAT</label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal; margin-top: 8px;">
+                        <input type="checkbox" id="removeVat" onchange="updateQuoteTable()" style="width: 16px; height: 16px; cursor: pointer;">
+                        Remove VAT from total
+                    </label>
+                </div>
             </div>
 
             <div id="generateSection" style="display: none; margin-top: 20px; text-align: center;">
@@ -493,6 +500,13 @@
                     <label for="invoiceDeduction">Deduction Amount (£)</label>
                     <input type="number" id="invoiceDeduction" step="0.01" min="0" value="0" placeholder="0.00">
                     <small style="display: block; margin-top: 5px; color: #666; font-size: 12px;">Enter any amount to deduct from the total (after VAT)</small>
+                </div>
+                <div class="form-group">
+                    <label>VAT</label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal; margin-top: 8px;">
+                        <input type="checkbox" id="invoiceRemoveVat" onchange="updateInvoiceTable()" style="width: 16px; height: 16px; cursor: pointer;">
+                        Remove VAT from total
+                    </label>
                 </div>
             </div>
 

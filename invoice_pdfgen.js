@@ -27,7 +27,8 @@ function previewInvoice() {
     for (var j = 0; j < invoiceItems.length; j++) {
         subtotal += invoiceItems[j].lineTotal;
     }
-    var vat = subtotal * 0.20;
+    var removeVat = document.getElementById('invoiceRemoveVat').checked;
+    var vat = removeVat ? 0 : subtotal * 0.20;
     var total = subtotal + vat;
     var amountDue = total - deduction;
 
@@ -203,10 +204,10 @@ function previewInvoice() {
               <span>Subtotal</span>
               <span>£${subtotal.toFixed(2)}</span>
             </div>
-            <div class="total-row-preview vat">
+            ${!removeVat ? `<div class="total-row-preview vat">
               <span>VAT (20%)</span>
               <span>£${vat.toFixed(2)}</span>
-            </div>
+            </div>` : ''}
             <div class="total-row-preview subtotal">
               <span>Total</span>
               <span>£${total.toFixed(2)}</span>
@@ -375,7 +376,8 @@ function generateInvoiceHTML() {
     for (var j = 0; j < invoiceItems.length; j++) {
         subtotal += invoiceItems[j].lineTotal;
     }
-    var vat = subtotal * 0.20;
+    var removeVat = document.getElementById('invoiceRemoveVat').checked;
+    var vat = removeVat ? 0 : subtotal * 0.20;
     var total = subtotal + vat;
     var amountDue = total - deduction;
 
@@ -763,18 +765,12 @@ function generateInvoiceHTML() {
               <span>Subtotal</span>
               <span>£${subtotal.toFixed(2)}</span>
             </div>
-            <div class="total-row vat">
-              <span>VAT (20%)</span>
-              <span>£${vat.toFixed(2)}</span>
-            </div>
+            ${!removeVat ? '<div class="total-row vat"><span>VAT (20%)</span><span>£' + vat.toFixed(2) + '</span></div>' : ''}
             <div class="total-row subtotal">
               <span>Total</span>
               <span>£${total.toFixed(2)}</span>
             </div>
-            ${deduction > 0 ? `<div class="total-row vat">
-              <span>Deduction</span>
-              <span>-£${deduction.toFixed(2)}</span>
-            </div>` : ''}
+            ${deduction > 0 ? '<div class="total-row vat"><span>Deduction</span><span>-£' + deduction.toFixed(2) + '</span></div>' : ''}
             <div class="total-row final">
               <span>Amount Due</span>
               <span>£${amountDue.toFixed(2)}</span>
