@@ -2,6 +2,8 @@ var items = [];
 var currentRateType = 'job';
 var estimateNumber = 1;
 var editingIndex = -1;
+var estimateSections = [];
+var activeEstimateSection = null;
 
 // Define category order (matches dropdown menu order)
 var categoryOrder = [
@@ -218,7 +220,8 @@ function addItem() {
         quantity: quantity,
         unit: unit,
         unitPrice: unitPrice,
-        lineTotal: lineTotal
+        lineTotal: lineTotal,
+        section: activeEstimateSection || ''
     });
 
     updateQuoteTable();
@@ -250,7 +253,12 @@ function editItem(index) {
         categoryOptions += '<option value="' + categories[i] + '" ' + selected + '>' + categories[i] + '</option>';
     }
     
-    var row = document.getElementById('quoteItems').rows[index];
+    var allRows = document.getElementById('quoteItems').rows;
+    var row = null;
+    for (var ri = 0; ri < allRows.length; ri++) {
+        if (allRows[ri].getAttribute('data-item-index') == index) { row = allRows[ri]; break; }
+    }
+    if (!row) return;
     row.classList.add('editing-row');
     row.innerHTML = `
         <td>
@@ -288,9 +296,13 @@ function updateEditTotal(index) {
     var quantity = parseFloat(document.getElementById('edit-quantity-' + index).value) || 0;
     var price = parseFloat(document.getElementById('edit-price-' + index).value) || 0;
     var total = quantity * price;
-    
-    var row = document.getElementById('quoteItems').rows[index];
-    row.cells[4].textContent = '£' + total.toFixed(2);
+
+    var allRows = document.getElementById('quoteItems').rows;
+    var row = null;
+    for (var ri = 0; ri < allRows.length; ri++) {
+        if (allRows[ri].getAttribute('data-item-index') == index) { row = allRows[ri]; break; }
+    }
+    if (row) row.cells[4].textContent = '£' + total.toFixed(2);
 }
 
 function saveEdit(index) {
@@ -312,7 +324,8 @@ function saveEdit(index) {
         quantity: quantity,
         unit: items[index].unit,
         unitPrice: unitPrice,
-        lineTotal: lineTotal
+        lineTotal: lineTotal,
+        section: items[index].section || ''
     };
     
     editingIndex = -1;
@@ -395,6 +408,26 @@ function groupItemsByCategory(itemsArray) {
     return grouped;
 }
 
+function renderEstimateItemRowHtml(item, i) {
+    var html = '<tr data-item-index="' + i + '">';
+    html += '<td>' + item.category + '</td>';
+    html += '<td>' + item.description + '</td>';
+    html += '<td class="text-center">' + item.quantity + '</td>';
+    html += '<td class="text-right">£' + item.unitPrice.toFixed(2) + '</td>';
+    html += '<td class="text-right" style="font-weight: 600;">£' + item.lineTotal.toFixed(2) + '</td>';
+    html += '<td class="text-center">';
+    html += '<div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">';
+    html += '<button class="btn-action btn-edit" onclick="editItem(' + i + ')" title="Edit">Edit</button>';
+    html += '<button class="btn-action btn-move" onclick="moveItem(' + i + ', \'up\')" title="Move Up" ' + (i === 0 ? 'disabled' : '') + '>↑</button>';
+    html += '<button class="btn-action btn-move" onclick="moveItem(' + i + ', \'down\')" title="Move Down" ' + (i === items.length - 1 ? 'disabled' : '') + '>↓</button>';
+    html += '<button class="btn-action btn-reposition" onclick="repositionItem(' + i + ')" title="Move to Position">#</button>';
+    html += '<button class="btn-action btn-delete" onclick="removeItem(' + i + ')" title="Delete">Del</button>';
+    html += '</div>';
+    html += '</td>';
+    html += '</tr>';
+    return html;
+}
+
 function updateQuoteTable() {
     var tbody = document.getElementById('quoteItems');
     var quoteSection = document.getElementById('quoteSection');
@@ -410,24 +443,42 @@ function updateQuoteTable() {
     generateSection.style.display = 'block';
 
     var html = '';
-    for (var i = 0; i < items.length; i++) {
-        var item = items[i];
-        html += '<tr>';
-        html += '<td>' + item.category + '</td>';
-        html += '<td>' + item.description + '</td>';
-        html += '<td class="text-center">' + item.quantity + '</td>';
-        html += '<td class="text-right">£' + item.unitPrice.toFixed(2) + '</td>';
-        html += '<td class="text-right" style="font-weight: 600;">£' + item.lineTotal.toFixed(2) + '</td>';
-        html += '<td class="text-center">';
-        html += '<div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">';
-        html += '<button class="btn-action btn-edit" onclick="editItem(' + i + ')" title="Edit">Edit</button>';
-        html += '<button class="btn-action btn-move" onclick="moveItem(' + i + ', \'up\')" title="Move Up" ' + (i === 0 ? 'disabled' : '') + '>↑</button>';
-        html += '<button class="btn-action btn-move" onclick="moveItem(' + i + ', \'down\')" title="Move Down" ' + (i === items.length - 1 ? 'disabled' : '') + '>↓</button>';
-        html += '<button class="btn-action btn-reposition" onclick="repositionItem(' + i + ')" title="Move to Position">#</button>';
-        html += '<button class="btn-action btn-delete" onclick="removeItem(' + i + ')" title="Delete">Del</button>';
-        html += '</div>';
-        html += '</td>';
-        html += '</tr>';
+    var i, si;
+
+    if (estimateSections.length > 0) {
+        // Render unsectioned items first
+        var hasUnsectioned = false;
+        for (i = 0; i < items.length; i++) {
+            if (!items[i].section) { hasUnsectioned = true; break; }
+        }
+        if (hasUnsectioned) {
+            html += '<tr style="background: #333; border-bottom: 2px solid #555;"><td colspan="6" style="padding: 8px 12px; font-weight: bold; color: #aaa; font-size: 12px; font-style: italic;">Unsectioned Items</td></tr>';
+            for (i = 0; i < items.length; i++) {
+                if (!items[i].section) {
+                    html += renderEstimateItemRowHtml(items[i], i);
+                }
+            }
+        }
+        // Render each named section
+        for (si = 0; si < estimateSections.length; si++) {
+            var sectionName = estimateSections[si];
+            var hasSectionItems = false;
+            for (i = 0; i < items.length; i++) {
+                if (items[i].section === sectionName) { hasSectionItems = true; break; }
+            }
+            if (hasSectionItems) {
+                html += '<tr style="background: #f0e8cc;"><td colspan="6" style="padding: 8px 12px; font-weight: bold; color: #5a4200; font-size: 13px;">' + sectionName + '</td></tr>';
+                for (i = 0; i < items.length; i++) {
+                    if (items[i].section === sectionName) {
+                        html += renderEstimateItemRowHtml(items[i], i);
+                    }
+                }
+            }
+        }
+    } else {
+        for (i = 0; i < items.length; i++) {
+            html += renderEstimateItemRowHtml(items[i], i);
+        }
     }
 
     var subtotal = 0;
@@ -487,10 +538,6 @@ function previewQuote() {
     var removeVat = document.getElementById('removeVat').checked;
     var vat = removeVat ? 0 : subtotal * 0.20;
     var total = subtotal + vat;
-
-    // Sort items by category
-    var sortedItems = sortItemsByCategory(items);
-    var groupedItems = groupItemsByCategory(sortedItems);
 
     var previewHtml = `
     <style>
@@ -600,25 +647,56 @@ function previewQuote() {
         </thead>
         <tbody>`;
 
-    // Render items grouped and sorted by category
-    categoryOrder.forEach(function(category) {
-        if (groupedItems[category]) {
-            previewHtml += `
-          <tr class="category-row">
-            <td colspan="4"><strong>${category}</strong></td>
-          </tr>`;
-            
-            groupedItems[category].forEach(function(item) {
-                previewHtml += `
-          <tr>
-            <td>${item.description}</td>
-            <td>${item.quantity}</td>
-            <td>£${item.unitPrice.toFixed(2)}</td>
-            <td>£${item.lineTotal.toFixed(2)}</td>
-          </tr>`;
-            });
+    // Render items - section-aware if sections exist, else grouped by category
+    function renderPreviewEstimateByCat(itemsArr) {
+        var sorted = sortItemsByCategory(itemsArr);
+        var grouped = groupItemsByCategory(sorted);
+        categoryOrder.forEach(function(cat) {
+            if (grouped[cat]) {
+                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + cat + '</strong></td></tr>';
+                grouped[cat].forEach(function(it) {
+                    previewHtml += '<tr><td>' + it.description + '</td><td>' + it.quantity + '</td><td>£' + it.unitPrice.toFixed(2) + '</td><td>£' + it.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+        // Custom categories not in categoryOrder
+        var seenCustom = {};
+        itemsArr.forEach(function(it) {
+            if (categoryOrder.indexOf(it.category) === -1 && !seenCustom[it.category]) {
+                seenCustom[it.category] = true;
+                var catItems = itemsArr.filter(function(x) { return x.category === it.category; });
+                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + it.category + '</strong></td></tr>';
+                catItems.forEach(function(x) {
+                    previewHtml += '<tr><td>' + x.description + '</td><td>' + x.quantity + '</td><td>£' + x.unitPrice.toFixed(2) + '</td><td>£' + x.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+    }
+
+    if (estimateSections.length > 0) {
+        var unsectionedItems = items.filter(function(it) { return !it.section; });
+        if (unsectionedItems.length > 0) {
+            renderPreviewEstimateByCat(unsectionedItems);
         }
-    });
+        estimateSections.forEach(function(sectionName) {
+            var sectionItems = items.filter(function(it) { return it.section === sectionName; });
+            if (sectionItems.length > 0) {
+                previewHtml += '<tr style="background: #d4af37;"><td colspan="4" style="padding: 10px 12px; font-weight: bold; color: white; font-size: 13px;">' + sectionName + '</td></tr>';
+                renderPreviewEstimateByCat(sectionItems);
+            }
+        });
+    } else {
+        var sortedItems = sortItemsByCategory(items);
+        var groupedItems = groupItemsByCategory(sortedItems);
+        categoryOrder.forEach(function(category) {
+            if (groupedItems[category]) {
+                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
+                groupedItems[category].forEach(function(item) {
+                    previewHtml += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+    }
 
     previewHtml += `
         </tbody>
@@ -673,3 +751,81 @@ window.onclick = function(event) {
         closePreview();
     }
 };
+
+// Estimate Sectioning functions
+function addEstimateSection() {
+    var nameInput = document.getElementById('estimateNewSectionName');
+    var name = nameInput.value.trim();
+    if (!name) {
+        alert('Please enter a section name');
+        return;
+    }
+    if (estimateSections.indexOf(name) >= 0) {
+        alert('A section with that name already exists');
+        return;
+    }
+    estimateSections.push(name);
+    if (estimateSections.length === 1) {
+        activeEstimateSection = name;
+    }
+    nameInput.value = '';
+    renderEstimateSections();
+}
+
+function removeEstimateSection(name) {
+    var sectionItems = items.filter(function(it) { return it.section === name; });
+    if (sectionItems.length > 0) {
+        if (!confirm('Section "' + name + '" contains items. They will become unsectioned. Continue?')) {
+            return;
+        }
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].section === name) { items[i].section = ''; }
+        }
+    }
+    var idx = estimateSections.indexOf(name);
+    if (idx >= 0) { estimateSections.splice(idx, 1); }
+    if (activeEstimateSection === name) {
+        activeEstimateSection = estimateSections.length > 0 ? estimateSections[0] : null;
+    }
+    renderEstimateSections();
+    updateQuoteTable();
+}
+
+function setActiveEstimateSection(name) {
+    activeEstimateSection = name;
+    renderEstimateSections();
+}
+
+function renderEstimateSections() {
+    var container = document.getElementById('estimateSectionsList');
+    if (estimateSections.length === 0) {
+        container.innerHTML = '<p style="font-size: 13px; color: #888; font-style: italic;">No sections added yet.</p>';
+        updateEstimateActiveSectionIndicator();
+        return;
+    }
+    var html = '';
+    for (var i = 0; i < estimateSections.length; i++) {
+        var sectionName = estimateSections[i];
+        var isActive = activeEstimateSection === sectionName;
+        html += '<div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: ' + (isActive ? '#fff8e7' : '#2a2a2a') + '; border: 1px solid ' + (isActive ? '#d4af37' : '#444') + '; border-radius: 6px; margin-bottom: 8px;">';
+        html += '<input type="radio" name="estimateActiveSection" value="' + sectionName.replace(/'/g, '&#39;') + '" ' + (isActive ? 'checked' : '') + ' onchange="setActiveEstimateSection(\'' + sectionName.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\')" style="cursor: pointer;">';
+        html += '<span style="flex: 1; font-size: 13px; color: ' + (isActive ? '#5a4200' : '#ccc') + '; font-weight: ' + (isActive ? 'bold' : 'normal') + ';">' + sectionName + '</span>';
+        html += '<button class="btn-action btn-delete" onclick="removeEstimateSection(\'' + sectionName.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\')" style="font-size: 11px; padding: 3px 8px;">Remove</button>';
+        html += '</div>';
+    }
+    container.innerHTML = html;
+    updateEstimateActiveSectionIndicator();
+}
+
+function updateEstimateActiveSectionIndicator() {
+    var indicator = document.getElementById('estimateActiveSectionIndicator');
+    if (estimateSections.length > 0 && activeEstimateSection) {
+        indicator.style.display = 'block';
+        indicator.textContent = 'Adding items to section: ' + activeEstimateSection;
+    } else if (estimateSections.length > 0) {
+        indicator.style.display = 'block';
+        indicator.textContent = 'No section selected — items will be unsectioned';
+    } else {
+        indicator.style.display = 'none';
+    }
+}

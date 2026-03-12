@@ -195,9 +195,26 @@
                 </div>
             </div>
 
+            <div class="section" id="estimateSectioningSection">
+                <h2 class="section-title">Sectioning</h2>
+                <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Create named sections to organise your line items (e.g., Bedroom 1, Kitchen, Bathroom). Tick a section to add items into it.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Section Name</label>
+                        <input type="text" id="estimateNewSectionName" placeholder="e.g., Bedroom 1, Kitchen, Living Room...">
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="addEstimateSection()">Add Section</button>
+                <div id="estimateSectionsList" style="margin-top: 15px;">
+                    <p style="font-size: 13px; color: #888; font-style: italic;">No sections added yet.</p>
+                </div>
+            </div>
+
             <div class="section">
                 <h2 class="section-title">Add Line Item</h2>
-                
+
+                <div id="estimateActiveSectionIndicator" style="display: none; margin-bottom: 12px; padding: 8px 12px; background: #fff8e7; border: 1px solid #d4af37; border-radius: 6px; font-size: 13px; color: #5a4200; font-weight: bold;"></div>
+
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Trade Category</label>
@@ -397,9 +414,26 @@
                 </div>
             </div>
 
+            <div class="section" id="invoiceSectioningSection">
+                <h2 class="section-title">Sectioning</h2>
+                <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Create named sections to organise your line items (e.g., Bedroom 1, Kitchen, Bathroom). Tick a section to add items into it.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Section Name</label>
+                        <input type="text" id="invoiceNewSectionName" placeholder="e.g., Bedroom 1, Kitchen, Living Room...">
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="addInvoiceSection()">Add Section</button>
+                <div id="invoiceSectionsList" style="margin-top: 15px;">
+                    <p style="font-size: 13px; color: #888; font-style: italic;">No sections added yet.</p>
+                </div>
+            </div>
+
             <div class="section">
                 <h2 class="section-title">Add Line Item</h2>
-                
+
+                <div id="invoiceActiveSectionIndicator" style="display: none; margin-bottom: 12px; padding: 8px 12px; background: #fff8e7; border: 1px solid #d4af37; border-radius: 6px; font-size: 13px; color: #5a4200; font-weight: bold;"></div>
+
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Trade Category</label>

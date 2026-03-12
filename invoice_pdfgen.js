@@ -41,10 +41,6 @@ function previewInvoice() {
         statusBadge = '<span style="background: #ef4444; color: white; padding: 5px 15px; border-radius: 4px; font-weight: bold;">UNPAID</span>';
     }
 
-    // Sort items by category
-    var sortedItems = sortInvoiceItemsByCategory(invoiceItems);
-    var groupedItems = groupInvoiceItemsByCategory(sortedItems);
-
     var previewHtml = `
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -160,25 +156,55 @@ function previewInvoice() {
         </thead>
         <tbody>`;
 
-    // Render items grouped and sorted by category
-    categoryOrder.forEach(function(category) {
-        if (groupedItems[category]) {
-            previewHtml += `
-          <tr class="category-row">
-            <td colspan="4"><strong>${category}</strong></td>
-          </tr>`;
-            
-            groupedItems[category].forEach(function(item) {
-                previewHtml += `
-          <tr>
-            <td>${item.description}</td>
-            <td>${item.quantity}</td>
-            <td>£${item.unitPrice.toFixed(2)}</td>
-            <td>£${item.lineTotal.toFixed(2)}</td>
-          </tr>`;
-            });
+    // Render items - section-aware if sections exist, else grouped by category
+    function renderPreviewInvoiceByCat(itemsArr) {
+        var sorted = sortInvoiceItemsByCategory(itemsArr);
+        var grouped = groupInvoiceItemsByCategory(sorted);
+        categoryOrder.forEach(function(cat) {
+            if (grouped[cat]) {
+                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + cat + '</strong></td></tr>';
+                grouped[cat].forEach(function(it) {
+                    previewHtml += '<tr><td>' + it.description + '</td><td>' + it.quantity + '</td><td>£' + it.unitPrice.toFixed(2) + '</td><td>£' + it.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+        var seenCustom = {};
+        itemsArr.forEach(function(it) {
+            if (categoryOrder.indexOf(it.category) === -1 && !seenCustom[it.category]) {
+                seenCustom[it.category] = true;
+                var catItems = itemsArr.filter(function(x) { return x.category === it.category; });
+                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + it.category + '</strong></td></tr>';
+                catItems.forEach(function(x) {
+                    previewHtml += '<tr><td>' + x.description + '</td><td>' + x.quantity + '</td><td>£' + x.unitPrice.toFixed(2) + '</td><td>£' + x.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+    }
+
+    if (invoiceSections.length > 0) {
+        var unsectioned = invoiceItems.filter(function(it) { return !it.section; });
+        if (unsectioned.length > 0) {
+            renderPreviewInvoiceByCat(unsectioned);
         }
-    });
+        invoiceSections.forEach(function(sectionName) {
+            var sectionItems = invoiceItems.filter(function(it) { return it.section === sectionName; });
+            if (sectionItems.length > 0) {
+                previewHtml += '<tr style="background: #d4af37;"><td colspan="4" style="padding: 10px 12px; font-weight: bold; color: white; font-size: 13px;">' + sectionName + '</td></tr>';
+                renderPreviewInvoiceByCat(sectionItems);
+            }
+        });
+    } else {
+        var sortedItems = sortInvoiceItemsByCategory(invoiceItems);
+        var groupedItems = groupInvoiceItemsByCategory(sortedItems);
+        categoryOrder.forEach(function(category) {
+            if (groupedItems[category]) {
+                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
+                groupedItems[category].forEach(function(item) {
+                    previewHtml += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+    }
 
     previewHtml += `
         </tbody>
@@ -380,10 +406,6 @@ function generateInvoiceHTML() {
     var vat = removeVat ? 0 : subtotal * 0.20;
     var total = subtotal + vat;
     var amountDue = total - deduction;
-
-    // Sort items by category
-    var sortedItems = sortInvoiceItemsByCategory(invoiceItems);
-    var groupedItems = groupInvoiceItemsByCategory(sortedItems);
 
     var statusBadge = '';
     var statusColor = '';
@@ -721,25 +743,55 @@ function generateInvoiceHTML() {
         </thead>
         <tbody>`;
 
-    // Render items grouped and sorted by category
-    categoryOrder.forEach(function(category) {
-        if (groupedItems[category]) {
-            bodyContent += `
-          <tr class="category-row">
-            <td colspan="4"><strong>${category}</strong></td>
-          </tr>`;
-            
-            groupedItems[category].forEach(function(item) {
-                bodyContent += `
-          <tr>
-            <td>${item.description}</td>
-            <td>${item.quantity}</td>
-            <td>£${item.unitPrice.toFixed(2)}</td>
-            <td>£${item.lineTotal.toFixed(2)}</td>
-          </tr>`;
-            });
+    // Render items - section-aware if sections exist, else grouped by category
+    function renderPdfInvoiceByCat(itemsArr) {
+        var sorted = sortInvoiceItemsByCategory(itemsArr);
+        var grouped = groupInvoiceItemsByCategory(sorted);
+        categoryOrder.forEach(function(cat) {
+            if (grouped[cat]) {
+                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + cat + '</strong></td></tr>';
+                grouped[cat].forEach(function(it) {
+                    bodyContent += '<tr><td>' + it.description + '</td><td>' + it.quantity + '</td><td>£' + it.unitPrice.toFixed(2) + '</td><td>£' + it.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+        var seenCustom = {};
+        itemsArr.forEach(function(it) {
+            if (categoryOrder.indexOf(it.category) === -1 && !seenCustom[it.category]) {
+                seenCustom[it.category] = true;
+                var catItems = itemsArr.filter(function(x) { return x.category === it.category; });
+                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + it.category + '</strong></td></tr>';
+                catItems.forEach(function(x) {
+                    bodyContent += '<tr><td>' + x.description + '</td><td>' + x.quantity + '</td><td>£' + x.unitPrice.toFixed(2) + '</td><td>£' + x.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+    }
+
+    if (invoiceSections.length > 0) {
+        var unsectioned = invoiceItems.filter(function(it) { return !it.section; });
+        if (unsectioned.length > 0) {
+            renderPdfInvoiceByCat(unsectioned);
         }
-    });
+        invoiceSections.forEach(function(sectionName) {
+            var sectionItems = invoiceItems.filter(function(it) { return it.section === sectionName; });
+            if (sectionItems.length > 0) {
+                bodyContent += '<tr style="background: #d4af37;"><td colspan="4" style="padding: 10px 12px; font-weight: bold; color: white; font-size: 13px;">' + sectionName + '</td></tr>';
+                renderPdfInvoiceByCat(sectionItems);
+            }
+        });
+    } else {
+        var sortedItems = sortInvoiceItemsByCategory(invoiceItems);
+        var groupedItems = groupInvoiceItemsByCategory(sortedItems);
+        categoryOrder.forEach(function(category) {
+            if (groupedItems[category]) {
+                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
+                groupedItems[category].forEach(function(item) {
+                    bodyContent += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+    }
 
     bodyContent += `
         </tbody>

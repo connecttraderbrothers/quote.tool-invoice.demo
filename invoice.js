@@ -2,6 +2,8 @@ var invoiceItems = [];
 var currentInvoiceRateType = 'job';
 var invoiceNumber = 1;
 var editingInvoiceIndex = -1;
+var invoiceSections = [];
+var activeInvoiceSection = null;
 
 // Define category order (matches dropdown menu order)
 var categoryOrder = [
@@ -218,7 +220,8 @@ function addInvoiceItem() {
         quantity: quantity,
         unit: unit,
         unitPrice: unitPrice,
-        lineTotal: lineTotal
+        lineTotal: lineTotal,
+        section: activeInvoiceSection || ''
     });
 
     updateInvoiceTable();
@@ -250,7 +253,12 @@ function editInvoiceItem(index) {
         categoryOptions += '<option value="' + categories[i] + '" ' + selected + '>' + categories[i] + '</option>';
     }
     
-    var row = document.getElementById('invoiceItems').rows[index];
+    var allRows = document.getElementById('invoiceItems').rows;
+    var row = null;
+    for (var ri = 0; ri < allRows.length; ri++) {
+        if (allRows[ri].getAttribute('data-item-index') == index) { row = allRows[ri]; break; }
+    }
+    if (!row) return;
     row.classList.add('editing-row');
     row.innerHTML = `
         <td>
@@ -288,9 +296,13 @@ function updateInvoiceEditTotal(index) {
     var quantity = parseFloat(document.getElementById('edit-invoice-quantity-' + index).value) || 0;
     var price = parseFloat(document.getElementById('edit-invoice-price-' + index).value) || 0;
     var total = quantity * price;
-    
-    var row = document.getElementById('invoiceItems').rows[index];
-    row.cells[4].textContent = '£' + total.toFixed(2);
+
+    var allRows = document.getElementById('invoiceItems').rows;
+    var row = null;
+    for (var ri = 0; ri < allRows.length; ri++) {
+        if (allRows[ri].getAttribute('data-item-index') == index) { row = allRows[ri]; break; }
+    }
+    if (row) row.cells[4].textContent = '£' + total.toFixed(2);
 }
 
 function saveInvoiceEdit(index) {
@@ -312,7 +324,8 @@ function saveInvoiceEdit(index) {
         quantity: quantity,
         unit: invoiceItems[index].unit,
         unitPrice: unitPrice,
-        lineTotal: lineTotal
+        lineTotal: lineTotal,
+        section: invoiceItems[index].section || ''
     };
     
     editingInvoiceIndex = -1;
@@ -395,6 +408,26 @@ function groupInvoiceItemsByCategory(itemsArray) {
     return grouped;
 }
 
+function renderInvoiceItemRowHtml(item, i) {
+    var html = '<tr data-item-index="' + i + '">';
+    html += '<td>' + item.category + '</td>';
+    html += '<td>' + item.description + '</td>';
+    html += '<td class="text-center">' + item.quantity + '</td>';
+    html += '<td class="text-right">£' + item.unitPrice.toFixed(2) + '</td>';
+    html += '<td class="text-right" style="font-weight: 600;">£' + item.lineTotal.toFixed(2) + '</td>';
+    html += '<td class="text-center">';
+    html += '<div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">';
+    html += '<button class="btn-action btn-edit" onclick="editInvoiceItem(' + i + ')" title="Edit">Edit</button>';
+    html += '<button class="btn-action btn-move" onclick="moveInvoiceItem(' + i + ', \'up\')" title="Move Up" ' + (i === 0 ? 'disabled' : '') + '>↑</button>';
+    html += '<button class="btn-action btn-move" onclick="moveInvoiceItem(' + i + ', \'down\')" title="Move Down" ' + (i === invoiceItems.length - 1 ? 'disabled' : '') + '>↓</button>';
+    html += '<button class="btn-action btn-reposition" onclick="repositionInvoiceItem(' + i + ')" title="Move to Position">#</button>';
+    html += '<button class="btn-action btn-delete" onclick="removeInvoiceItem(' + i + ')" title="Delete">Del</button>';
+    html += '</div>';
+    html += '</td>';
+    html += '</tr>';
+    return html;
+}
+
 function updateInvoiceTable() {
     var tbody = document.getElementById('invoiceItems');
     var itemsSection = document.getElementById('invoiceItemsSection');
@@ -410,24 +443,42 @@ function updateInvoiceTable() {
     generateSection.style.display = 'block';
 
     var html = '';
-    for (var i = 0; i < invoiceItems.length; i++) {
-        var item = invoiceItems[i];
-        html += '<tr>';
-        html += '<td>' + item.category + '</td>';
-        html += '<td>' + item.description + '</td>';
-        html += '<td class="text-center">' + item.quantity + '</td>';
-        html += '<td class="text-right">£' + item.unitPrice.toFixed(2) + '</td>';
-        html += '<td class="text-right" style="font-weight: 600;">£' + item.lineTotal.toFixed(2) + '</td>';
-        html += '<td class="text-center">';
-        html += '<div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">';
-        html += '<button class="btn-action btn-edit" onclick="editInvoiceItem(' + i + ')" title="Edit">Edit</button>';
-        html += '<button class="btn-action btn-move" onclick="moveInvoiceItem(' + i + ', \'up\')" title="Move Up" ' + (i === 0 ? 'disabled' : '') + '>↑</button>';
-        html += '<button class="btn-action btn-move" onclick="moveInvoiceItem(' + i + ', \'down\')" title="Move Down" ' + (i === invoiceItems.length - 1 ? 'disabled' : '') + '>↓</button>';
-        html += '<button class="btn-action btn-reposition" onclick="repositionInvoiceItem(' + i + ')" title="Move to Position">#</button>';
-        html += '<button class="btn-action btn-delete" onclick="removeInvoiceItem(' + i + ')" title="Delete">Del</button>';
-        html += '</div>';
-        html += '</td>';
-        html += '</tr>';
+    var i, si;
+
+    if (invoiceSections.length > 0) {
+        // Render unsectioned items first
+        var hasUnsectioned = false;
+        for (i = 0; i < invoiceItems.length; i++) {
+            if (!invoiceItems[i].section) { hasUnsectioned = true; break; }
+        }
+        if (hasUnsectioned) {
+            html += '<tr style="background: #333; border-bottom: 2px solid #555;"><td colspan="6" style="padding: 8px 12px; font-weight: bold; color: #aaa; font-size: 12px; font-style: italic;">Unsectioned Items</td></tr>';
+            for (i = 0; i < invoiceItems.length; i++) {
+                if (!invoiceItems[i].section) {
+                    html += renderInvoiceItemRowHtml(invoiceItems[i], i);
+                }
+            }
+        }
+        // Render each named section
+        for (si = 0; si < invoiceSections.length; si++) {
+            var sectionName = invoiceSections[si];
+            var hasSectionItems = false;
+            for (i = 0; i < invoiceItems.length; i++) {
+                if (invoiceItems[i].section === sectionName) { hasSectionItems = true; break; }
+            }
+            if (hasSectionItems) {
+                html += '<tr style="background: #f0e8cc;"><td colspan="6" style="padding: 8px 12px; font-weight: bold; color: #5a4200; font-size: 13px;">' + sectionName + '</td></tr>';
+                for (i = 0; i < invoiceItems.length; i++) {
+                    if (invoiceItems[i].section === sectionName) {
+                        html += renderInvoiceItemRowHtml(invoiceItems[i], i);
+                    }
+                }
+            }
+        }
+    } else {
+        for (i = 0; i < invoiceItems.length; i++) {
+            html += renderInvoiceItemRowHtml(invoiceItems[i], i);
+        }
     }
 
     var subtotal = 0;
@@ -470,3 +521,81 @@ window.onclick = function(event) {
         closeInvoicePreview();
     }
 };
+
+// Invoice Sectioning functions
+function addInvoiceSection() {
+    var nameInput = document.getElementById('invoiceNewSectionName');
+    var name = nameInput.value.trim();
+    if (!name) {
+        alert('Please enter a section name');
+        return;
+    }
+    if (invoiceSections.indexOf(name) >= 0) {
+        alert('A section with that name already exists');
+        return;
+    }
+    invoiceSections.push(name);
+    if (invoiceSections.length === 1) {
+        activeInvoiceSection = name;
+    }
+    nameInput.value = '';
+    renderInvoiceSections();
+}
+
+function removeInvoiceSection(name) {
+    var sectionItems = invoiceItems.filter(function(it) { return it.section === name; });
+    if (sectionItems.length > 0) {
+        if (!confirm('Section "' + name + '" contains items. They will become unsectioned. Continue?')) {
+            return;
+        }
+        for (var i = 0; i < invoiceItems.length; i++) {
+            if (invoiceItems[i].section === name) { invoiceItems[i].section = ''; }
+        }
+    }
+    var idx = invoiceSections.indexOf(name);
+    if (idx >= 0) { invoiceSections.splice(idx, 1); }
+    if (activeInvoiceSection === name) {
+        activeInvoiceSection = invoiceSections.length > 0 ? invoiceSections[0] : null;
+    }
+    renderInvoiceSections();
+    updateInvoiceTable();
+}
+
+function setActiveInvoiceSection(name) {
+    activeInvoiceSection = name;
+    renderInvoiceSections();
+}
+
+function renderInvoiceSections() {
+    var container = document.getElementById('invoiceSectionsList');
+    if (invoiceSections.length === 0) {
+        container.innerHTML = '<p style="font-size: 13px; color: #888; font-style: italic;">No sections added yet.</p>';
+        updateInvoiceActiveSectionIndicator();
+        return;
+    }
+    var html = '';
+    for (var i = 0; i < invoiceSections.length; i++) {
+        var sectionName = invoiceSections[i];
+        var isActive = activeInvoiceSection === sectionName;
+        html += '<div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: ' + (isActive ? '#fff8e7' : '#2a2a2a') + '; border: 1px solid ' + (isActive ? '#d4af37' : '#444') + '; border-radius: 6px; margin-bottom: 8px;">';
+        html += '<input type="radio" name="invoiceActiveSection" value="' + sectionName.replace(/'/g, '&#39;') + '" ' + (isActive ? 'checked' : '') + ' onchange="setActiveInvoiceSection(\'' + sectionName.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\')" style="cursor: pointer;">';
+        html += '<span style="flex: 1; font-size: 13px; color: ' + (isActive ? '#5a4200' : '#ccc') + '; font-weight: ' + (isActive ? 'bold' : 'normal') + ';">' + sectionName + '</span>';
+        html += '<button class="btn-action btn-delete" onclick="removeInvoiceSection(\'' + sectionName.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\')" style="font-size: 11px; padding: 3px 8px;">Remove</button>';
+        html += '</div>';
+    }
+    container.innerHTML = html;
+    updateInvoiceActiveSectionIndicator();
+}
+
+function updateInvoiceActiveSectionIndicator() {
+    var indicator = document.getElementById('invoiceActiveSectionIndicator');
+    if (invoiceSections.length > 0 && activeInvoiceSection) {
+        indicator.style.display = 'block';
+        indicator.textContent = 'Adding items to section: ' + activeInvoiceSection;
+    } else if (invoiceSections.length > 0) {
+        indicator.style.display = 'block';
+        indicator.textContent = 'No section selected — items will be unsectioned';
+    } else {
+        indicator.style.display = 'none';
+    }
+}

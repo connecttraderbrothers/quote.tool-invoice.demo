@@ -25,10 +25,6 @@ function generateCompleteHTML() {
     var vat = removeVat ? 0 : subtotal * 0.20;
     var total = subtotal + vat;
 
-    // Sort items by category
-    var sortedItems = sortItemsByCategory(items);
-    var groupedItems = groupItemsByCategory(sortedItems);
-
     var styles = `
     <style>
       * {
@@ -311,25 +307,56 @@ function generateCompleteHTML() {
         </thead>
         <tbody>`;
 
-    // Render items grouped and sorted by category
-    categoryOrder.forEach(function(category) {
-        if (groupedItems[category]) {
-            bodyContent += `
-          <tr class="category-row">
-            <td colspan="4"><strong>${category}</strong></td>
-          </tr>`;
-            
-            groupedItems[category].forEach(function(item) {
-                bodyContent += `
-          <tr>
-            <td>${item.description}</td>
-            <td>${item.quantity}</td>
-            <td>£${item.unitPrice.toFixed(2)}</td>
-            <td>£${item.lineTotal.toFixed(2)}</td>
-          </tr>`;
-            });
+    // Render items - section-aware if sections exist, else grouped by category
+    function renderPdfEstimateByCat(itemsArr) {
+        var sorted = sortItemsByCategory(itemsArr);
+        var grouped = groupItemsByCategory(sorted);
+        categoryOrder.forEach(function(cat) {
+            if (grouped[cat]) {
+                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + cat + '</strong></td></tr>';
+                grouped[cat].forEach(function(it) {
+                    bodyContent += '<tr><td>' + it.description + '</td><td>' + it.quantity + '</td><td>£' + it.unitPrice.toFixed(2) + '</td><td>£' + it.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+        // Custom categories not in categoryOrder
+        var seenCustom = {};
+        itemsArr.forEach(function(it) {
+            if (categoryOrder.indexOf(it.category) === -1 && !seenCustom[it.category]) {
+                seenCustom[it.category] = true;
+                var catItems = itemsArr.filter(function(x) { return x.category === it.category; });
+                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + it.category + '</strong></td></tr>';
+                catItems.forEach(function(x) {
+                    bodyContent += '<tr><td>' + x.description + '</td><td>' + x.quantity + '</td><td>£' + x.unitPrice.toFixed(2) + '</td><td>£' + x.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+    }
+
+    if (estimateSections.length > 0) {
+        var unsectioned = items.filter(function(it) { return !it.section; });
+        if (unsectioned.length > 0) {
+            renderPdfEstimateByCat(unsectioned);
         }
-    });
+        estimateSections.forEach(function(sectionName) {
+            var sectionItems = items.filter(function(it) { return it.section === sectionName; });
+            if (sectionItems.length > 0) {
+                bodyContent += '<tr style="background: #d4af37;"><td colspan="4" style="padding: 10px 12px; font-weight: bold; color: white; font-size: 13px;">' + sectionName + '</td></tr>';
+                renderPdfEstimateByCat(sectionItems);
+            }
+        });
+    } else {
+        var sortedItems = sortItemsByCategory(items);
+        var groupedItems = groupItemsByCategory(sortedItems);
+        categoryOrder.forEach(function(category) {
+            if (groupedItems[category]) {
+                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
+                groupedItems[category].forEach(function(item) {
+                    bodyContent += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+    }
 
     bodyContent += `
         </tbody>
