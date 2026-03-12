@@ -195,9 +195,22 @@
                 </div>
             </div>
 
+            <div class="section" id="sectioningPanel">
+                <h2 class="section-title">Sectioning <span class="section-optional-label">(Optional)</span></h2>
+                <p class="sections-hint">Create named sections to organise your line items (e.g. Bedroom 1, Kitchen). Tick a section to make it active — new items will be added into it.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Section Name</label>
+                        <input type="text" id="newSectionName" placeholder="e.g. Bedroom 1, Kitchen, Bathroom...">
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="addQuoteSection()">+ Add Section</button>
+                <div id="sectionsList"></div>
+            </div>
+
             <div class="section">
                 <h2 class="section-title">Add Line Item</h2>
-                
+
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Trade Category</label>

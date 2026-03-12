@@ -3,6 +3,10 @@ var currentRateType = 'job';
 var estimateNumber = 1;
 var editingIndex = -1;
 
+var quoteSections = [];
+var currentSectionId = null;
+var sectionCounter = 0;
+
 // Define category order (matches dropdown menu order)
 var categoryOrder = [
     'Downtakings',
@@ -84,6 +88,73 @@ function editEstimateNumber() {
     localStorage.setItem('traderBrosEstimateCount', num - 1);
     updateEstimateCounter();
 }
+
+// --- Section management ---
+
+function addQuoteSection() {
+    var name = document.getElementById('newSectionName').value.trim();
+    if (!name) {
+        alert('Please enter a section name.');
+        return;
+    }
+    sectionCounter++;
+    var id = 'sec-' + sectionCounter;
+    quoteSections.push({ id: id, name: name });
+    if (quoteSections.length === 1) {
+        currentSectionId = id;
+    }
+    document.getElementById('newSectionName').value = '';
+    renderSectionsPanel();
+}
+
+function removeQuoteSection(id) {
+    var i;
+    for (i = 0; i < items.length; i++) {
+        if (items[i].sectionId === id) {
+            items[i].sectionId = null;
+        }
+    }
+    var kept = [];
+    for (i = 0; i < quoteSections.length; i++) {
+        if (quoteSections[i].id !== id) {
+            kept.push(quoteSections[i]);
+        }
+    }
+    quoteSections = kept;
+    if (currentSectionId === id) {
+        currentSectionId = quoteSections.length > 0 ? quoteSections[0].id : null;
+    }
+    renderSectionsPanel();
+    updateQuoteTable();
+}
+
+function setActiveSection(id) {
+    currentSectionId = id;
+    renderSectionsPanel();
+}
+
+function renderSectionsPanel() {
+    var container = document.getElementById('sectionsList');
+    if (quoteSections.length === 0) {
+        container.innerHTML = '<p class="sections-empty-hint">No sections yet — items will be added without a section.</p>';
+        return;
+    }
+    var html = '';
+    for (var i = 0; i < quoteSections.length; i++) {
+        var sec = quoteSections[i];
+        var isActive = currentSectionId === sec.id;
+        html += '<div class="section-item' + (isActive ? ' section-item-active' : '') + '">';
+        html += '<label class="section-radio-label">';
+        html += '<input type="radio" name="activeSection" value="' + sec.id + '" ' + (isActive ? 'checked' : '') + ' onchange="setActiveSection(\'' + sec.id + '\')">';
+        html += '<span class="section-item-name">' + sec.name + '</span>';
+        html += '</label>';
+        html += '<button class="btn-action btn-delete" onclick="removeQuoteSection(\'' + sec.id + '\')" title="Remove section">Del</button>';
+        html += '</div>';
+    }
+    container.innerHTML = html;
+}
+
+// --- End section management ---
 
 // Auto-generate Customer ID from client name
 document.getElementById('clientName').addEventListener('input', function() {
@@ -218,7 +289,8 @@ function addItem() {
         quantity: quantity,
         unit: unit,
         unitPrice: unitPrice,
-        lineTotal: lineTotal
+        lineTotal: lineTotal,
+        sectionId: currentSectionId
     });
 
     updateQuoteTable();
@@ -250,7 +322,7 @@ function editItem(index) {
         categoryOptions += '<option value="' + categories[i] + '" ' + selected + '>' + categories[i] + '</option>';
     }
     
-    var row = document.getElementById('quoteItems').rows[index];
+    var row = document.getElementById('item-row-' + index);
     row.classList.add('editing-row');
     row.innerHTML = `
         <td>
@@ -289,7 +361,7 @@ function updateEditTotal(index) {
     var price = parseFloat(document.getElementById('edit-price-' + index).value) || 0;
     var total = quantity * price;
     
-    var row = document.getElementById('quoteItems').rows[index];
+    var row = document.getElementById('item-row-' + index);
     row.cells[4].textContent = '£' + total.toFixed(2);
 }
 
@@ -312,7 +384,8 @@ function saveEdit(index) {
         quantity: quantity,
         unit: items[index].unit,
         unitPrice: unitPrice,
-        lineTotal: lineTotal
+        lineTotal: lineTotal,
+        sectionId: items[index].sectionId
     };
     
     editingIndex = -1;
@@ -370,6 +443,58 @@ function repositionItem(index) {
     updateQuoteTable();
 }
 
+// Build structured render data for preview/PDF — handles sections
+// Returns an array of blocks: [{ sectionName, categories: [{ category, items[] }] }]
+function buildRenderData(itemsArray) {
+    var blocks = [];
+
+    function makeCategoryBlocks(subset) {
+        var sorted = subset.slice().sort(function(a, b) {
+            var ia = categoryOrder.indexOf(a.category);
+            var ib = categoryOrder.indexOf(b.category);
+            if (ia === -1) ia = 999;
+            if (ib === -1) ib = 999;
+            return ia - ib;
+        });
+        var grouped = {};
+        var order = [];
+        sorted.forEach(function(item) {
+            if (!grouped[item.category]) {
+                grouped[item.category] = [];
+                order.push(item.category);
+            }
+            grouped[item.category].push(item);
+        });
+        return order.map(function(cat) { return { category: cat, items: grouped[cat] }; });
+    }
+
+    if (quoteSections.length > 0) {
+        var i, k;
+        for (i = 0; i < quoteSections.length; i++) {
+            var sec = quoteSections[i];
+            var subset = [];
+            for (k = 0; k < itemsArray.length; k++) {
+                if (itemsArray[k].sectionId === sec.id) subset.push(itemsArray[k]);
+            }
+            if (subset.length > 0) {
+                blocks.push({ sectionName: sec.name, categories: makeCategoryBlocks(subset) });
+            }
+        }
+        // Unsectioned items
+        var other = [];
+        for (k = 0; k < itemsArray.length; k++) {
+            if (!itemsArray[k].sectionId) other.push(itemsArray[k]);
+        }
+        if (other.length > 0) {
+            blocks.push({ sectionName: 'Other', categories: makeCategoryBlocks(other) });
+        }
+    } else {
+        // No sections — single block with no section name
+        blocks.push({ sectionName: null, categories: makeCategoryBlocks(itemsArray) });
+    }
+    return blocks;
+}
+
 // Helper function to sort items by category order
 function sortItemsByCategory(itemsArray) {
     return itemsArray.slice().sort(function(a, b) {
@@ -395,6 +520,26 @@ function groupItemsByCategory(itemsArray) {
     return grouped;
 }
 
+function buildItemRow(item, i) {
+    var row = '<tr id="item-row-' + i + '">';
+    row += '<td>' + item.category + '</td>';
+    row += '<td>' + item.description + '</td>';
+    row += '<td class="text-center">' + item.quantity + '</td>';
+    row += '<td class="text-right">£' + item.unitPrice.toFixed(2) + '</td>';
+    row += '<td class="text-right" style="font-weight: 600;">£' + item.lineTotal.toFixed(2) + '</td>';
+    row += '<td class="text-center">';
+    row += '<div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">';
+    row += '<button class="btn-action btn-edit" onclick="editItem(' + i + ')" title="Edit">Edit</button>';
+    row += '<button class="btn-action btn-move" onclick="moveItem(' + i + ', \'up\')" title="Move Up" ' + (i === 0 ? 'disabled' : '') + '>↑</button>';
+    row += '<button class="btn-action btn-move" onclick="moveItem(' + i + ', \'down\')" title="Move Down" ' + (i === items.length - 1 ? 'disabled' : '') + '>↓</button>';
+    row += '<button class="btn-action btn-reposition" onclick="repositionItem(' + i + ')" title="Move to Position">#</button>';
+    row += '<button class="btn-action btn-delete" onclick="removeItem(' + i + ')" title="Delete">Del</button>';
+    row += '</div>';
+    row += '</td>';
+    row += '</tr>';
+    return row;
+}
+
 function updateQuoteTable() {
     var tbody = document.getElementById('quoteItems');
     var quoteSection = document.getElementById('quoteSection');
@@ -410,34 +555,50 @@ function updateQuoteTable() {
     generateSection.style.display = 'block';
 
     var html = '';
-    for (var i = 0; i < items.length; i++) {
-        var item = items[i];
-        html += '<tr>';
-        html += '<td>' + item.category + '</td>';
-        html += '<td>' + item.description + '</td>';
-        html += '<td class="text-center">' + item.quantity + '</td>';
-        html += '<td class="text-right">£' + item.unitPrice.toFixed(2) + '</td>';
-        html += '<td class="text-right" style="font-weight: 600;">£' + item.lineTotal.toFixed(2) + '</td>';
-        html += '<td class="text-center">';
-        html += '<div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">';
-        html += '<button class="btn-action btn-edit" onclick="editItem(' + i + ')" title="Edit">Edit</button>';
-        html += '<button class="btn-action btn-move" onclick="moveItem(' + i + ', \'up\')" title="Move Up" ' + (i === 0 ? 'disabled' : '') + '>↑</button>';
-        html += '<button class="btn-action btn-move" onclick="moveItem(' + i + ', \'down\')" title="Move Down" ' + (i === items.length - 1 ? 'disabled' : '') + '>↓</button>';
-        html += '<button class="btn-action btn-reposition" onclick="repositionItem(' + i + ')" title="Move to Position">#</button>';
-        html += '<button class="btn-action btn-delete" onclick="removeItem(' + i + ')" title="Delete">Del</button>';
-        html += '</div>';
-        html += '</td>';
-        html += '</tr>';
+    var i, k;
+
+    if (quoteSections.length > 0) {
+        // Render items grouped under their section headers
+        for (var s = 0; s < quoteSections.length; s++) {
+            var sec = quoteSections[s];
+            html += '<tr class="quote-section-header-row">';
+            html += '<td colspan="6"><strong>' + sec.name + '</strong></td>';
+            html += '</tr>';
+            for (k = 0; k < items.length; k++) {
+                if (items[k].sectionId === sec.id) {
+                    html += buildItemRow(items[k], k);
+                }
+            }
+        }
+        // Unsectioned items go under an "Other" header
+        var hasUnsectioned = false;
+        for (k = 0; k < items.length; k++) {
+            if (!items[k].sectionId) { hasUnsectioned = true; break; }
+        }
+        if (hasUnsectioned) {
+            html += '<tr class="quote-section-header-row">';
+            html += '<td colspan="6"><strong>Other</strong></td>';
+            html += '</tr>';
+            for (k = 0; k < items.length; k++) {
+                if (!items[k].sectionId) {
+                    html += buildItemRow(items[k], k);
+                }
+            }
+        }
+    } else {
+        // No sections — flat list (original behaviour)
+        for (i = 0; i < items.length; i++) {
+            html += buildItemRow(items[i], i);
+        }
     }
 
     var subtotal = 0;
     for (var j = 0; j < items.length; j++) {
         subtotal += items[j].lineTotal;
     }
-
     var vat = subtotal * 0.20;
     var total = subtotal + vat;
-    
+
     html += '<tr class="total-row">';
     html += '<td colspan="4" class="text-right">Subtotal:</td>';
     html += '<td class="text-right">£' + subtotal.toFixed(2) + '</td>';
@@ -484,9 +645,8 @@ function previewQuote() {
     var vat = subtotal * 0.20;
     var total = subtotal + vat;
 
-    // Sort items by category
-    var sortedItems = sortItemsByCategory(items);
-    var groupedItems = groupItemsByCategory(sortedItems);
+    // Build rendering data: sections-aware
+    var previewRenderData = buildRenderData(items);
 
     var previewHtml = `
     <style>
@@ -512,6 +672,8 @@ function previewQuote() {
       .items-table-preview th:nth-child(2), .items-table-preview th:nth-child(3), .items-table-preview th:nth-child(4) { text-align: right; width: 100px; }
       .items-table-preview td { padding: 12px; font-size: 13px; border-bottom: 1px solid #eee; color: #333; }
       .items-table-preview td:nth-child(2), .items-table-preview td:nth-child(3), .items-table-preview td:nth-child(4) { text-align: right; }
+      .section-header-row-preview { background: linear-gradient(135deg, #bc9c22, #d4af37); color: white; }
+      .section-header-row-preview td { padding: 10px 12px; font-size: 14px; border-bottom: 2px solid #bc9c22; }
       .category-row { background: #f9f9f9; font-weight: bold; color: #333; }
       .category-row td { padding: 10px 12px; border-bottom: 2px solid #ddd; }
       .notes-section-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 3px solid #bc9c22; }
@@ -596,24 +758,17 @@ function previewQuote() {
         </thead>
         <tbody>`;
 
-    // Render items grouped and sorted by category
-    categoryOrder.forEach(function(category) {
-        if (groupedItems[category]) {
-            previewHtml += `
-          <tr class="category-row">
-            <td colspan="4"><strong>${category}</strong></td>
-          </tr>`;
-            
-            groupedItems[category].forEach(function(item) {
-                previewHtml += `
-          <tr>
-            <td>${item.description}</td>
-            <td>${item.quantity}</td>
-            <td>£${item.unitPrice.toFixed(2)}</td>
-            <td>£${item.lineTotal.toFixed(2)}</td>
-          </tr>`;
-            });
+    // Render items — section-aware
+    previewRenderData.forEach(function(block) {
+        if (block.sectionName) {
+            previewHtml += '<tr class="section-header-row-preview"><td colspan="4"><strong>' + block.sectionName + '</strong></td></tr>';
         }
+        block.categories.forEach(function(catBlock) {
+            previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + catBlock.category + '</strong></td></tr>';
+            catBlock.items.forEach(function(item) {
+                previewHtml += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+            });
+        });
     });
 
     previewHtml += `

@@ -24,9 +24,8 @@ function generateCompleteHTML() {
     var vat = subtotal * 0.20;
     var total = subtotal + vat;
 
-    // Sort items by category
-    var sortedItems = sortItemsByCategory(items);
-    var groupedItems = groupItemsByCategory(sortedItems);
+    // Build section-aware render data
+    var renderData = buildRenderData(items);
 
     var styles = `
     <style>
@@ -156,6 +155,15 @@ function generateCompleteHTML() {
       .items-table td:nth-child(3),
       .items-table td:nth-child(4) {
         text-align: right;
+      }
+      .section-header-row {
+        background: linear-gradient(135deg, #bc9c22, #d4af37);
+        color: white;
+      }
+      .section-header-row td {
+        padding: 10px 12px;
+        font-size: 14px;
+        border-bottom: 2px solid #bc9c22;
       }
       .category-row {
         background: #f9f9f9;
@@ -310,24 +318,17 @@ function generateCompleteHTML() {
         </thead>
         <tbody>`;
 
-    // Render items grouped and sorted by category
-    categoryOrder.forEach(function(category) {
-        if (groupedItems[category]) {
-            bodyContent += `
-          <tr class="category-row">
-            <td colspan="4"><strong>${category}</strong></td>
-          </tr>`;
-            
-            groupedItems[category].forEach(function(item) {
-                bodyContent += `
-          <tr>
-            <td>${item.description}</td>
-            <td>${item.quantity}</td>
-            <td>£${item.unitPrice.toFixed(2)}</td>
-            <td>£${item.lineTotal.toFixed(2)}</td>
-          </tr>`;
-            });
+    // Render items — section-aware
+    renderData.forEach(function(block) {
+        if (block.sectionName) {
+            bodyContent += '<tr class="section-header-row"><td colspan="4"><strong>' + block.sectionName + '</strong></td></tr>';
         }
+        block.categories.forEach(function(catBlock) {
+            bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + catBlock.category + '</strong></td></tr>';
+            catBlock.items.forEach(function(item) {
+                bodyContent += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+            });
+        });
     });
 
     bodyContent += `
