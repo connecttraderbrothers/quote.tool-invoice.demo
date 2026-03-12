@@ -586,8 +586,24 @@
                 </div>
             </div>
 
+            <div class="section" id="statementSectioningSection">
+                <h2 class="section-title">Sectioning</h2>
+                <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Create named sections to organise your line items (e.g., Bedroom 1, Kitchen). Tick a section to direct new items into it.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Section Name</label>
+                        <input type="text" id="statementNewSectionName" placeholder="e.g., Bedroom 1, Kitchen, Living Room...">
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="addStatementSection()">Add Section</button>
+                <div id="statementSectionsList" style="margin-top: 15px;">
+                    <p style="color: #999; font-size: 13px; margin-top: 8px;">No sections yet. Add a section above to organise your line items.</p>
+                </div>
+            </div>
+
             <div class="section">
                 <h2 class="section-title">Add Line Item</h2>
+                <div id="statementActiveSectionIndicator" style="display: none; margin-bottom: 12px; padding: 8px 12px; background: #fff8e7; border: 1px solid #d4af37; border-radius: 6px; font-size: 13px; color: #5a4200; font-weight: bold;"></div>
 
                 <div class="form-grid">
                     <div class="form-group">
