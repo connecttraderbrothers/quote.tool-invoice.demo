@@ -28,23 +28,6 @@ function previewStatement() {
     var vat = removeVat ? 0 : subtotal * 0.20;
     var total = subtotal + vat;
 
-    // Sort items by category
-    var sortedItems = sortStatementItemsByCategory(statementItems);
-    var groupedItems = groupStatementItemsByCategory(sortedItems);
-
-    // Build ordered list of categories (standard order first, then custom)
-    var allCategories = [];
-    statementCategoryOrder.forEach(function(cat) {
-        if (groupedItems[cat]) {
-            allCategories.push(cat);
-        }
-    });
-    Object.keys(groupedItems).forEach(function(cat) {
-        if (allCategories.indexOf(cat) === -1) {
-            allCategories.push(cat);
-        }
-    });
-
     var previewHtml = '\
     <style>\
       * { margin: 0; padding: 0; box-sizing: border-box; }\
@@ -149,15 +132,49 @@ function previewStatement() {
         </thead>\
         <tbody>';
 
-    // Render items grouped and sorted by category
-    allCategories.forEach(function(category) {
-        if (groupedItems[category]) {
-            previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
-            groupedItems[category].forEach(function(item) {
-                previewHtml += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+    // Render items — section-grouped when sections exist, else category-grouped
+    if (statementSections.length > 0) {
+        // Helper to render a flat item list grouped by category
+        function renderPreviewItemsByCat(itemsArr) {
+            var sorted = sortStatementItemsByCategory(itemsArr);
+            var grouped = groupStatementItemsByCategory(sorted);
+            var cats = [];
+            statementCategoryOrder.forEach(function(c) { if (grouped[c]) cats.push(c); });
+            Object.keys(grouped).forEach(function(c) { if (cats.indexOf(c) === -1) cats.push(c); });
+            cats.forEach(function(c) {
+                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + c + '</strong></td></tr>';
+                grouped[c].forEach(function(item) {
+                    previewHtml += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+                });
             });
         }
-    });
+        // Unsectioned items (no header)
+        var unsectioned = statementItems.filter(function(it) { return !it.section; });
+        if (unsectioned.length > 0) { renderPreviewItemsByCat(unsectioned); }
+        // Each section
+        statementSections.forEach(function(sectionName) {
+            var sectionItems = statementItems.filter(function(it) { return it.section === sectionName; });
+            if (sectionItems.length > 0) {
+                previewHtml += '<tr style="background: #d4af37;"><td colspan="4" style="padding: 10px 12px; font-weight: bold; color: white; font-size: 13px;">' + sectionName + '</td></tr>';
+                renderPreviewItemsByCat(sectionItems);
+            }
+        });
+    } else {
+        // No sections — original category-grouped rendering
+        var sortedItems = sortStatementItemsByCategory(statementItems);
+        var groupedItems = groupStatementItemsByCategory(sortedItems);
+        var allCategories = [];
+        statementCategoryOrder.forEach(function(cat) { if (groupedItems[cat]) allCategories.push(cat); });
+        Object.keys(groupedItems).forEach(function(cat) { if (allCategories.indexOf(cat) === -1) allCategories.push(cat); });
+        allCategories.forEach(function(category) {
+            if (groupedItems[category]) {
+                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
+                groupedItems[category].forEach(function(item) {
+                    previewHtml += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+    }
 
     previewHtml += '</tbody></table>';
 
@@ -219,23 +236,6 @@ function generateStatementHTML() {
     var removeVat = document.getElementById('statementRemoveVat').checked;
     var vat = removeVat ? 0 : subtotal * 0.20;
     var total = subtotal + vat;
-
-    // Sort items by category
-    var sortedItems = sortStatementItemsByCategory(statementItems);
-    var groupedItems = groupStatementItemsByCategory(sortedItems);
-
-    // Build ordered list of categories (standard order first, then custom)
-    var allCategories = [];
-    statementCategoryOrder.forEach(function(cat) {
-        if (groupedItems[cat]) {
-            allCategories.push(cat);
-        }
-    });
-    Object.keys(groupedItems).forEach(function(cat) {
-        if (allCategories.indexOf(cat) === -1) {
-            allCategories.push(cat);
-        }
-    });
 
     var styles = '\
     <style>\
@@ -321,15 +321,45 @@ function generateStatementHTML() {
         </thead>\
         <tbody>';
 
-    // Render items grouped and sorted by category
-    allCategories.forEach(function(category) {
-        if (groupedItems[category]) {
-            bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
-            groupedItems[category].forEach(function(item) {
-                bodyContent += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+    // Render items — section-grouped when sections exist, else category-grouped
+    if (statementSections.length > 0) {
+        function renderPdfItemsByCat(itemsArr) {
+            var sorted = sortStatementItemsByCategory(itemsArr);
+            var grouped = groupStatementItemsByCategory(sorted);
+            var cats = [];
+            statementCategoryOrder.forEach(function(c) { if (grouped[c]) cats.push(c); });
+            Object.keys(grouped).forEach(function(c) { if (cats.indexOf(c) === -1) cats.push(c); });
+            cats.forEach(function(c) {
+                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + c + '</strong></td></tr>';
+                grouped[c].forEach(function(item) {
+                    bodyContent += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+                });
             });
         }
-    });
+        var unsectioned = statementItems.filter(function(it) { return !it.section; });
+        if (unsectioned.length > 0) { renderPdfItemsByCat(unsectioned); }
+        statementSections.forEach(function(sectionName) {
+            var sectionItems = statementItems.filter(function(it) { return it.section === sectionName; });
+            if (sectionItems.length > 0) {
+                bodyContent += '<tr style="background: #d4af37;"><td colspan="4" style="padding: 10px 12px; font-weight: bold; color: white; font-size: 13px;">' + sectionName + '</td></tr>';
+                renderPdfItemsByCat(sectionItems);
+            }
+        });
+    } else {
+        var sortedItems = sortStatementItemsByCategory(statementItems);
+        var groupedItems = groupStatementItemsByCategory(sortedItems);
+        var allCategories = [];
+        statementCategoryOrder.forEach(function(cat) { if (groupedItems[cat]) allCategories.push(cat); });
+        Object.keys(groupedItems).forEach(function(cat) { if (allCategories.indexOf(cat) === -1) allCategories.push(cat); });
+        allCategories.forEach(function(category) {
+            if (groupedItems[category]) {
+                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
+                groupedItems[category].forEach(function(item) {
+                    bodyContent += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+                });
+            }
+        });
+    }
 
     bodyContent += '</tbody></table>';
 

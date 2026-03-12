@@ -2,6 +2,8 @@ var statementItems = [];
 var currentStatementRateType = 'job';
 var statementNumber = 1;
 var editingStatementIndex = -1;
+var statementSections = [];
+var activeStatementSection = null;
 
 // Define category order (matches dropdown menu order)
 var statementCategoryOrder = [
@@ -84,6 +86,96 @@ function editStatementNumber() {
     localStorage.setItem('traderBrosStatementCount', num - 1);
     updateStatementCounter();
 }
+
+// ── Section management ────────────────────────────────────────────────────────
+
+function addStatementSection() {
+    var name = document.getElementById('statementNewSectionName').value.trim();
+    if (!name) {
+        alert('Please enter a section name');
+        return;
+    }
+    if (statementSections.indexOf(name) !== -1) {
+        alert('A section with this name already exists');
+        return;
+    }
+    statementSections.push(name);
+    // Auto-activate the first section created
+    if (statementSections.length === 1) {
+        activeStatementSection = name;
+    }
+    document.getElementById('statementNewSectionName').value = '';
+    renderStatementSections();
+    updateStatementTable();
+}
+
+function removeStatementSection(name) {
+    var hasItems = false;
+    for (var i = 0; i < statementItems.length; i++) {
+        if (statementItems[i].section === name) { hasItems = true; break; }
+    }
+    if (hasItems) {
+        if (!confirm('Section "' + name + '" has items. Delete anyway? Those items will become unsectioned.')) {
+            return;
+        }
+        for (var j = 0; j < statementItems.length; j++) {
+            if (statementItems[j].section === name) { statementItems[j].section = ''; }
+        }
+    }
+    var idx = statementSections.indexOf(name);
+    if (idx !== -1) { statementSections.splice(idx, 1); }
+    if (activeStatementSection === name) {
+        activeStatementSection = statementSections.length > 0 ? statementSections[0] : null;
+    }
+    renderStatementSections();
+    updateStatementTable();
+}
+
+function setActiveStatementSection(name) {
+    activeStatementSection = name;
+    renderStatementSections();
+}
+
+function renderStatementSections() {
+    var container = document.getElementById('statementSectionsList');
+    if (statementSections.length === 0) {
+        container.innerHTML = '<p style="color: #999; font-size: 13px; margin-top: 8px;">No sections yet. Add a section above to organise your line items.</p>';
+        updateStatementActiveSectionIndicator();
+        return;
+    }
+    var html = '<p style="font-size: 12px; color: #666; margin-bottom: 8px;">Tick a section to add new items into it:</p>';
+    for (var i = 0; i < statementSections.length; i++) {
+        var sectionName = statementSections[i];
+        var isActive = sectionName === activeStatementSection;
+        var itemCount = 0;
+        for (var j = 0; j < statementItems.length; j++) {
+            if (statementItems[j].section === sectionName) { itemCount++; }
+        }
+        var esc = sectionName.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        html += '<div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: ' + (isActive ? '#fff8e7' : '#f9f9f9') + '; border: ' + (isActive ? '2px solid #d4af37' : '1px solid #ddd') + '; border-radius: 6px; margin-bottom: 8px;">';
+        html += '<input type="radio" name="activeStatementSection" id="stmtSec_' + i + '" ' + (isActive ? 'checked' : '') + ' onchange="setActiveStatementSection(\'' + esc + '\')" style="width: 16px; height: 16px; cursor: pointer; accent-color: #d4af37;">';
+        html += '<label for="stmtSec_' + i + '" style="flex: 1; font-weight: ' + (isActive ? 'bold' : 'normal') + '; cursor: pointer; color: #333; margin: 0;">';
+        html += sectionName + ' <span style="font-size: 11px; color: #999; font-weight: normal;">(' + itemCount + ' item' + (itemCount !== 1 ? 's' : '') + ')</span>';
+        html += '</label>';
+        html += '<button onclick="removeStatementSection(\'' + esc + '\')" style="background: none; border: 1px solid #ccc; border-radius: 4px; color: #999; cursor: pointer; padding: 3px 8px; font-size: 13px; line-height: 1;" title="Remove section">\xd7</button>';
+        html += '</div>';
+    }
+    container.innerHTML = html;
+    updateStatementActiveSectionIndicator();
+}
+
+function updateStatementActiveSectionIndicator() {
+    var indicator = document.getElementById('statementActiveSectionIndicator');
+    if (!indicator) return;
+    if (statementSections.length > 0 && activeStatementSection) {
+        indicator.textContent = 'Adding items to: ' + activeStatementSection;
+        indicator.style.display = 'block';
+    } else {
+        indicator.style.display = 'none';
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Auto-generate Customer ID from client name
 document.getElementById('statementClientName').addEventListener('input', function() {
@@ -199,6 +291,11 @@ document.querySelectorAll('.statement-rate-btn').forEach(function(btn) {
 });
 
 function addStatementItem() {
+    if (statementSections.length > 0 && !activeStatementSection) {
+        alert('Please tick a section in the Sectioning panel before adding items');
+        return;
+    }
+
     var categorySelect = document.getElementById('statementTradeCategory').value;
     var category = '';
     if (categorySelect === 'Custom') {
@@ -235,6 +332,7 @@ function addStatementItem() {
     var lineTotal = unitPrice * quantity;
 
     statementItems.push({
+        section: activeStatementSection || '',
         category: category,
         description: description,
         quantity: quantity,
@@ -245,6 +343,7 @@ function addStatementItem() {
 
     updateStatementTable();
     clearStatementForm();
+    if (statementSections.length > 0) { renderStatementSections(); }
 }
 
 function clearStatementForm() {
@@ -279,7 +378,12 @@ function editStatementItem(index) {
         categoryOptions += '<option value="' + item.category + '" selected>' + item.category + '</option>';
     }
 
-    var row = document.getElementById('statementItemsBody').rows[index];
+    var allRows = document.getElementById('statementItemsBody').rows;
+    var row = null;
+    for (var ri = 0; ri < allRows.length; ri++) {
+        if (allRows[ri].getAttribute('data-item-index') == index) { row = allRows[ri]; break; }
+    }
+    if (!row) return;
     row.classList.add('editing-row');
     row.innerHTML = '<td>' +
         '<select class="inline-edit-input" id="edit-statement-category-' + index + '" style="width: 100%;">' +
@@ -316,8 +420,13 @@ function updateStatementEditTotal(index) {
     var price = parseFloat(document.getElementById('edit-statement-price-' + index).value) || 0;
     var total = quantity * price;
 
-    var row = document.getElementById('statementItemsBody').rows[index];
-    row.cells[4].textContent = '£' + total.toFixed(2);
+    var allRows = document.getElementById('statementItemsBody').rows;
+    for (var ri = 0; ri < allRows.length; ri++) {
+        if (allRows[ri].getAttribute('data-item-index') == index) {
+            allRows[ri].cells[4].textContent = '£' + total.toFixed(2);
+            break;
+        }
+    }
 }
 
 function saveStatementEdit(index) {
@@ -356,6 +465,7 @@ function removeStatementItem(index) {
         statementItems.splice(index, 1);
         editingStatementIndex = -1;
         updateStatementTable();
+        if (statementSections.length > 0) { renderStatementSections(); }
     }
 }
 
@@ -423,6 +533,26 @@ function groupStatementItemsByCategory(itemsArray) {
     return grouped;
 }
 
+function renderStatementItemRowHtml(item, i) {
+    var html = '<tr data-item-index="' + i + '">';
+    html += '<td>' + item.category + '</td>';
+    html += '<td>' + item.description + '</td>';
+    html += '<td class="text-center">' + item.quantity + '</td>';
+    html += '<td class="text-right">£' + item.unitPrice.toFixed(2) + '</td>';
+    html += '<td class="text-right" style="font-weight: 600;">£' + item.lineTotal.toFixed(2) + '</td>';
+    html += '<td class="text-center">';
+    html += '<div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">';
+    html += '<button class="btn-action btn-edit" onclick="editStatementItem(' + i + ')" title="Edit">Edit</button>';
+    html += '<button class="btn-action btn-move" onclick="moveStatementItem(' + i + ', \'up\')" title="Move Up" ' + (i === 0 ? 'disabled' : '') + '>↑</button>';
+    html += '<button class="btn-action btn-move" onclick="moveStatementItem(' + i + ', \'down\')" title="Move Down" ' + (i === statementItems.length - 1 ? 'disabled' : '') + '>↓</button>';
+    html += '<button class="btn-action btn-reposition" onclick="repositionStatementItem(' + i + ')" title="Move to Position">#</button>';
+    html += '<button class="btn-action btn-delete" onclick="removeStatementItem(' + i + ')" title="Delete">Del</button>';
+    html += '</div>';
+    html += '</td>';
+    html += '</tr>';
+    return html;
+}
+
 function updateStatementTable() {
     var tbody = document.getElementById('statementItemsBody');
     var itemsSection = document.getElementById('statementItemsSection');
@@ -438,24 +568,35 @@ function updateStatementTable() {
     generateSection.style.display = 'block';
 
     var html = '';
-    for (var i = 0; i < statementItems.length; i++) {
-        var item = statementItems[i];
-        html += '<tr>';
-        html += '<td>' + item.category + '</td>';
-        html += '<td>' + item.description + '</td>';
-        html += '<td class="text-center">' + item.quantity + '</td>';
-        html += '<td class="text-right">£' + item.unitPrice.toFixed(2) + '</td>';
-        html += '<td class="text-right" style="font-weight: 600;">£' + item.lineTotal.toFixed(2) + '</td>';
-        html += '<td class="text-center">';
-        html += '<div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">';
-        html += '<button class="btn-action btn-edit" onclick="editStatementItem(' + i + ')" title="Edit">Edit</button>';
-        html += '<button class="btn-action btn-move" onclick="moveStatementItem(' + i + ', \'up\')" title="Move Up" ' + (i === 0 ? 'disabled' : '') + '>↑</button>';
-        html += '<button class="btn-action btn-move" onclick="moveStatementItem(' + i + ', \'down\')" title="Move Down" ' + (i === statementItems.length - 1 ? 'disabled' : '') + '>↓</button>';
-        html += '<button class="btn-action btn-reposition" onclick="repositionStatementItem(' + i + ')" title="Move to Position">#</button>';
-        html += '<button class="btn-action btn-delete" onclick="removeStatementItem(' + i + ')" title="Delete">Del</button>';
-        html += '</div>';
-        html += '</td>';
-        html += '</tr>';
+
+    if (statementSections.length > 0) {
+        // Unsectioned items first (no header)
+        for (var u = 0; u < statementItems.length; u++) {
+            if (!statementItems[u].section) {
+                html += renderStatementItemRowHtml(statementItems[u], u);
+            }
+        }
+        // Sectioned items grouped under bold headers
+        for (var s = 0; s < statementSections.length; s++) {
+            var sectionName = statementSections[s];
+            var hasAny = false;
+            for (var si = 0; si < statementItems.length; si++) {
+                if (statementItems[si].section === sectionName) { hasAny = true; break; }
+            }
+            if (hasAny) {
+                html += '<tr style="background: #f0e8cc;"><td colspan="6" style="padding: 10px 12px; font-weight: bold; color: #5a4200; border-bottom: 2px solid #d4af37; font-size: 14px;">' + sectionName + '</td></tr>';
+                for (var sj = 0; sj < statementItems.length; sj++) {
+                    if (statementItems[sj].section === sectionName) {
+                        html += renderStatementItemRowHtml(statementItems[sj], sj);
+                    }
+                }
+            }
+        }
+    } else {
+        // No sections — flat list
+        for (var i = 0; i < statementItems.length; i++) {
+            html += renderStatementItemRowHtml(statementItems[i], i);
+        }
     }
 
     var subtotal = 0;
