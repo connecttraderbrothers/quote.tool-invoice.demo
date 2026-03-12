@@ -78,18 +78,18 @@
                     </ul>
                 </div>
 
-                <div class="tool-card disabled">
-                    <div class="tool-icon">📅</div>
-                    <div class="tool-title">Job Scheduler</div>
+                <div class="tool-card active" onclick="showStatementTool()">
+                    <div class="tool-icon">📄</div>
+                    <div class="tool-title">Statement Generator</div>
                     <div class="tool-description">
-                        Schedule jobs, manage your team, and track project timelines efficiently.
+                        Create customisable statements with flexible categories and professional PDF output.
                     </div>
-                    <span class="tool-status status-coming-soon">Coming Soon</span>
+                    <span class="tool-status status-active">Active</span>
                     <ul class="tool-features">
-                        <li>Calendar integration</li>
-                        <li>Team assignments</li>
-                        <li>Progress tracking</li>
-                        <li>Deadline reminders</li>
+                        <li>Custom category names</li>
+                        <li>Standard trade rates included</li>
+                        <li>Professional PDF output</li>
+                        <li>VAT calculation</li>
                     </ul>
                 </div>
 
@@ -532,6 +532,195 @@
         </div>
     </div>
     
+    <!-- STATEMENT TOOL SCREEN -->
+    <div id="statementScreen" style="display: none;">
+        <div class="back-navigation">
+            <button class="back-btn" onclick="showDashboard()">
+                ← Back to Dashboard
+            </button>
+        </div>
+
+        <div class="container">
+            <div class="header">
+                <div class="logo-container">
+                    <img src="https://github.com/connecttraderbrothers/omega.app.icon/blob/main/icon-512x512.png?raw=true" alt="Omega Logo" class="logo">
+                </div>
+                <div class="header-text">
+                    <h1>OMEGA</h1>
+                    <p>Professional Statement Tool</p>
+                </div>
+            </div>
+
+            <div class="estimate-counter">
+                Next Statement Number: <span id="statementCounter">#0001</span>
+                <button class="edit-number-btn" onclick="editStatementNumber()" title="Change statement number">&#9998;</button>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Client Information</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Client Name *</label>
+                        <input type="text" id="statementClientName" placeholder="Enter full name (e.g., John Smith)">
+                    </div>
+                    <div class="form-group">
+                        <label>Client Phone</label>
+                        <input type="text" id="statementClientPhone" placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label>Client Email</label>
+                        <input type="email" id="statementClientEmail" placeholder="Enter email address">
+                    </div>
+                    <div class="form-group">
+                        <label>Project Address *</label>
+                        <input type="text" id="statementProjectAddress" placeholder="Enter full address">
+                    </div>
+                   <div class="form-group">
+                        <label>Project Postcode</label>
+                        <input type="text" id="statementProjectPostcode" placeholder="Enter postcode">
+                    </div>
+                    <div class="form-group">
+                        <label>Customer ID (Auto-generated)</label>
+                        <input type="text" id="statementCustomerId" placeholder="Auto-generated from name" disabled>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Add Line Item</h2>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Trade Category</label>
+                        <select id="statementTradeCategory">
+                            <option value="">Select a trade...</option>
+                            <option value="Downtakings">Downtakings</option>
+                            <option value="General Building">General Building</option>
+                            <option value="Building work">Building work</option>
+                            <option value="Carpentry">Carpentry</option>
+                            <option value="Joinery">Joinery</option>
+                            <option value="Electrical">Electricals</option>
+                            <option value="Plumbing">Plumbing</option>
+                            <option value="Gas work/Plumbing">Gas work/Plumbing</option>
+                            <option value="Plastering">Plastering</option>
+                            <option value="Skimming /Painting">Skimming /Painting</option>
+                            <option value="Painting & Decorating">Painting & Decorating</option>
+                            <option value="Tiling">Tiling</option>
+                            <option value="Roofing">Roofing</option>
+                            <option value="Kitchen Fitting">Kitchen Fitting</option>
+                            <option value="Bathroom Fitting">Bathrooms</option>
+                            <option value="Flooring">Flooring</option>
+                            <option value="Bricklaying">Bricklaying</option>
+                            <option value="HVAC">HVAC (Heating & Ventilation)</option>
+                            <option value="Groundworks">Groundworks</option>
+                            <option value="Scaffolding">Scaffolding</option>
+                            <option value="Glazing">Glazing</option>
+                            <option value="Insulation">Insulation</option>
+                            <option value="Materials">Materials</option>
+                            <option value="Custom">Custom (enter name)</option>
+                        </select>
+                        <div id="statementTradeRateInfo" class="rate-info"></div>
+                    </div>
+                    <div class="form-group hidden" id="statementCustomCategoryGroup">
+                        <label>Custom Category Name *</label>
+                        <input type="text" id="statementCustomCategoryName" placeholder="Enter category name">
+                    </div>
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <input type="text" id="statementDescription" placeholder="Describe the work">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Quantity *</label>
+                        <input type="number" id="statementQuantity" value="1" min="0.1" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Rate Type</label>
+                        <div class="rate-type-selector">
+                            <button type="button" class="rate-type-btn statement-rate-btn" data-type="hourly">Hourly Rate</button>
+                            <button type="button" class="rate-type-btn statement-rate-btn" data-type="daily">Day Rate</button>
+                            <button type="button" class="rate-type-btn statement-rate-btn active" data-type="job">Per Job</button>
+                            <button type="button" class="rate-type-btn statement-rate-btn" data-type="custom">Custom</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label id="statementRateLabel">Unit Price (£) *</label>
+                        <input type="number" id="statementUnitPrice" placeholder="Enter price or use standard rate" step="0.01" min="0">
+                    </div>
+                    <div class="form-group hidden" id="statementCustomUnitGroup">
+                        <label>Custom Unit Name</label>
+                        <input type="text" id="statementCustomUnit" placeholder="e.g., per sqm, per item">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="addStatementItem()">Add Item to Statement</button>
+            </div>
+
+            <div class="section" id="statementItemsSection" style="display: none;">
+                <h2 class="section-title">Statement Items</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-right">Unit Price</th>
+                                <th class="text-right">Total</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statementItemsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section" id="statementNotesSection">
+                <h2 class="section-title">Additional Notes (Optional)</h2>
+                <div class="form-group">
+                    <label>Custom Notes</label>
+                    <textarea id="statementCustomNotes" rows="4" placeholder="Add any additional notes or terms..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Deposit Percentage</label>
+                    <input type="number" id="statementDepositPercent" value="30" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label>VAT</label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal; margin-top: 8px;">
+                        <input type="checkbox" id="statementRemoveVat" onchange="updateStatementTable()" style="width: 16px; height: 16px; cursor: pointer;">
+                        Remove VAT from total
+                    </label>
+                </div>
+            </div>
+
+            <div id="generateStatementSection" style="display: none; margin-top: 20px; text-align: center;">
+                <button class="btn btn-success" onclick="previewStatement()">Preview Statement</button>
+                <button class="btn btn-secondary" onclick="downloadStatement()">Download PDF</button>
+            </div>
+        </div>
+
+        <div id="statementPreviewModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close" onclick="closeStatementPreview()">&times;</span>
+                    <h2>Statement Preview</h2>
+                </div>
+                <div class="modal-body" id="statementPreviewBody">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" onclick="downloadStatement()">Download PDF</button>
+                    <button class="btn btn-secondary" onclick="closeStatementPreview()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Matrix Animation Script -->
     <script>
         const canvas = document.getElementById('matrix');
@@ -601,5 +790,7 @@
     <script src="pdf_generator.js"></script>
     <script src="invoice.js"></script>
     <script src="invoice_pdfgen.js"></script>
+    <script src="statement.js"></script>
+    <script src="statement_pdfgen.js"></script>
 </body>
 </html>
