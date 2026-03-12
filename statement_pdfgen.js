@@ -12,7 +12,6 @@ function previewStatement() {
     var projectAddress = document.getElementById('statementProjectAddress').value || '[Project Address]';
     var projectPostcode = document.getElementById('statementProjectPostcode').value;
     var customerId = document.getElementById('statementCustomerId').value || 'N/A';
-    var depositPercent = document.getElementById('statementDepositPercent').value || '30';
     var customNotes = document.getElementById('statementCustomNotes').value.trim();
 
     var today = new Date();
@@ -181,10 +180,8 @@ function previewStatement() {
     previewHtml += '<div class="notes-section-preview">\
        <h3>Notes:</h3>\
        <ol>\
-         <li>Statement valid for 31 days</li>\
-         <li>Payment of ' + depositPercent + '% is required to secure start date</li>\
-         <li>Parking to be supplied by customer</li>\
-         <li>Any extras to be charged accordingly</li>\
+         <li>Statement includes all works from accepted estimate/s</li>\
+         <li>Statement also includes all payment made.</li>\
        </ol>\
        ' + (customNotes ? '<div style="margin-top: 15px; font-size: 12px; line-height: 1.8; color: #666;"><strong>Additional Notes:</strong><br>' + customNotes.replace(/\n/g, '<br>') + '</div>' : '') + '\
      </div>';
@@ -221,7 +218,6 @@ function generateStatementHTML() {
     var projectAddress = document.getElementById('statementProjectAddress').value || '[Project Address]';
     var projectPostcode = document.getElementById('statementProjectPostcode').value;
     var customerId = document.getElementById('statementCustomerId').value || 'N/A';
-    var depositPercent = document.getElementById('statementDepositPercent').value || '30';
     var customNotes = document.getElementById('statementCustomNotes').value.trim();
 
     var today = new Date();
@@ -366,10 +362,8 @@ function generateStatementHTML() {
     bodyContent += '<div class="notes-section">\
         <h3>Notes:</h3>\
         <ol>\
-          <li>Statement valid for 31 days</li>\
-          <li>Payment of ' + depositPercent + '% is required to secure start date</li>\
-          <li>Parking to be supplied by customer</li>\
-          <li>Any additional work to be charged accordingly</li>\
+          <li>Statement includes all works from accepted estimate/s</li>\
+          <li>Statement also includes all payment made.</li>\
         </ol>\
         ' + (customNotes ? '<div style="margin-top: 15px; font-size: 12px; line-height: 1.8; color: #666;"><strong>Additional Notes:</strong><br>' + customNotes.replace(/\n/g, '<br>') + '</div>' : '') + '\
       </div>';
