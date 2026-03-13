@@ -695,20 +695,20 @@ function parsePdfForStatement(arrayBuffer) {
         var allItems = [];
         for (var pi = 0; pi < pageContents.length; pi++) {
             var tc = pageContents[pi];
+            var pageOffset = pi * 10000; // hoisted: same for every item on this page
             for (var ii = 0; ii < tc.items.length; ii++) {
                 var raw = tc.items[ii];
-                if (raw.str && raw.str.trim()) {
-                    // Clone the item and apply a page-index y-offset so items
-                    // from different pages never share the same y-coordinate.
-                    // Without this, page 1 y=400 and page 2 y=400 get merged
-                    // into the same "line", scrambling categories and items.
-                    // Subtracting pi*10000 keeps pages in reading order when
-                    // sorted descending (page 1 items have larger y → first).
-                    var item = { str: raw.str, fontName: raw.fontName,
-                                 transform: raw.transform.slice() };
-                    item.transform[5] -= pi * 10000;
-                    allItems.push(item);
-                }
+                if (!raw.str || !raw.str.trim() || !raw.transform) continue;
+                // Clone and apply a page-index y-offset so items from different
+                // pages never share the same y-coordinate. Without this, page 1
+                // y=400 and page 2 y=400 get merged into the same "line",
+                // scrambling categories and items.
+                // Subtracting pi*10000 keeps pages in reading order when sorted
+                // descending (page 1 items have larger y → appear first).
+                var item = { str: raw.str, fontName: raw.fontName,
+                             transform: raw.transform.slice() };
+                item.transform[5] -= pageOffset;
+                allItems.push(item);
             }
         }
         var parsed = parseTbPdfItems(allItems);
@@ -742,6 +742,33 @@ function groupPdfItemsIntoLines(items) {
     }
     if (curItems.length) lines.push(curItems);
     return lines;
+}
+
+// Normalise a category string to survive PDF.js text-run splitting.
+// Chromium (PDFShift) sometimes breaks "Skimming /Painting" into two runs
+// ["Skimming /", "Painting"], which when re-joined with a space produces
+// "Skimming / Painting" — an extra space that breaks exact matching.
+// Similarly "&" may be split off or emitted as "&amp;".
+// Normalising both sides of the comparison absorbs these artifacts.
+function normalizeCategoryText(s) {
+    return s.replace(/&amp;/g, '&')      // HTML entity → literal ampersand
+             .replace(/\u00a0/g, ' ')    // non-breaking space → regular space
+             .replace(/\s*\/\s*/g, '/')  // "Skimming / Painting" → "Skimming/Painting"
+             .replace(/\s*&\s*/g, ' & ') // normalise spacing around ampersand
+             .replace(/\s+/g, ' ')       // collapse remaining whitespace
+             .trim();
+}
+
+// Returns the canonical category name from statementCategoryOrder whose
+// normalised form matches normalizeCategoryText(lineText), or null if none.
+function findMatchingCategory(lineText) {
+    var norm = normalizeCategoryText(lineText);
+    for (var i = 0; i < statementCategoryOrder.length; i++) {
+        if (normalizeCategoryText(statementCategoryOrder[i]) === norm) {
+            return statementCategoryOrder[i];
+        }
+    }
+    return null;
 }
 
 function parseTbPdfItems(allItems) {
@@ -825,7 +852,7 @@ function parseTbPdfItems(allItems) {
     // Wrapped description continuations are NOT bold. Checking fontName for
     // "Bold" lets us skip continuations and avoid creating phantom sections.
 
-    var lines = groupPdfItemsIntoLines(allItems);
+    var lines = groupPdfItemsIntoLines(sortedAll); // reuse already-sorted array
     var inTable = false;
     var currentCategory = '';
     var currentSection = '';
@@ -870,8 +897,9 @@ function parseTbPdfItems(allItems) {
             // PDF engine embedded bold fonts under names without "Bold", category
             // rows would be silently skipped and all items would inherit the
             // wrong (or default "Materials") category.
-            if (statementCategoryOrder.indexOf(lineText) !== -1) {
-                currentCategory = lineText;
+            var matchedCategory = findMatchingCategory(lineText);
+            if (matchedCategory !== null) {
+                currentCategory = matchedCategory;
                 continue;
             }
 
