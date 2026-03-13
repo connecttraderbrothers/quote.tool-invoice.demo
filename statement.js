@@ -696,8 +696,18 @@ function parsePdfForStatement(arrayBuffer) {
         for (var pi = 0; pi < pageContents.length; pi++) {
             var tc = pageContents[pi];
             for (var ii = 0; ii < tc.items.length; ii++) {
-                if (tc.items[ii].str && tc.items[ii].str.trim()) {
-                    allItems.push(tc.items[ii]);
+                var raw = tc.items[ii];
+                if (raw.str && raw.str.trim()) {
+                    // Clone the item and apply a page-index y-offset so items
+                    // from different pages never share the same y-coordinate.
+                    // Without this, page 1 y=400 and page 2 y=400 get merged
+                    // into the same "line", scrambling categories and items.
+                    // Subtracting pi*10000 keeps pages in reading order when
+                    // sorted descending (page 1 items have larger y → first).
+                    var item = { str: raw.str, fontName: raw.fontName,
+                                 transform: raw.transform.slice() };
+                    item.transform[5] -= pi * 10000;
+                    allItems.push(item);
                 }
             }
         }
@@ -854,9 +864,19 @@ function parseTbPdfItems(allItems) {
         }
 
         // Spanning row (no £): category sub-header or section header.
-        // Only process if the line is BOLD — non-bold spanning text is a
-        // wrapped description continuation from the item above; ignore it.
         if (lineText.indexOf('£') === -1) {
+            // Known category names are matched by exact string — font-independent.
+            // This must come first: if the bold-font check ran first and the
+            // PDF engine embedded bold fonts under names without "Bold", category
+            // rows would be silently skipped and all items would inherit the
+            // wrong (or default "Materials") category.
+            if (statementCategoryOrder.indexOf(lineText) !== -1) {
+                currentCategory = lineText;
+                continue;
+            }
+
+            // For everything else, use bold font to tell section headers apart
+            // from wrapped description continuations (which are not bold).
             var lineBold = false;
             for (var k = 0; k < lines[li].length; k++) {
                 if (lines[li][k].fontName && /Bold/i.test(lines[li][k].fontName)) {
@@ -866,10 +886,8 @@ function parseTbPdfItems(allItems) {
             }
             if (!lineBold) continue; // description continuation — skip
 
-            if (statementCategoryOrder.indexOf(lineText) !== -1) {
-                currentCategory = lineText;
-            } else if (lineText.length > 0 && lineText.length < 80) {
-                // Bold text not matching a known category = user section header
+            // Bold, non-category text → user-defined section header
+            if (lineText.length > 0 && lineText.length < 80) {
                 currentSection = lineText;
                 currentCategory = '';
                 if (result.sections.indexOf(lineText) === -1) {
