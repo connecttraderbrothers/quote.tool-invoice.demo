@@ -742,10 +742,9 @@ function parseTbPdfItems(allItems) {
     };
 
     // ── 1. Client info: label→value pair extraction ────────────────────────
-    // The info-section is a two-column flex layout, so items from both columns
-    // share the same y-coordinate. We cannot join a whole line — instead we
-    // find each label item and collect the value items immediately to its right
-    // before the next label (or the next y-level) is reached.
+    // The info-section is a two-column flex layout so items from both columns
+    // share the same y-coordinate. Find each known label item then collect the
+    // value items immediately to its right before the next label is reached.
 
     var sortedAll = allItems.slice().sort(function(a, b) {
         var ay = a.transform[5], by = b.transform[5];
@@ -766,20 +765,24 @@ function parseTbPdfItems(allItems) {
         var itemStr = sortedAll[i].str.trim();
         if (!itemStr) continue;
 
-        // Case A: label and value rendered as one text run, e.g. "Name: John Smith"
-        var foundLbl = null;
+        // Case A: label + value in one text run e.g. "Name: John Smith"
+        var foundLbl = null, foundInlineVal = '';
         for (var lbl in infoLabels) {
-            if (itemStr.indexOf(lbl) === 0) { foundLbl = lbl; break; }
-        }
-        if (foundLbl) {
-            var inlineVal = itemStr.substring(foundLbl.length).trim();
-            if (inlineVal && inlineVal !== 'N/A') {
-                result[infoLabels[foundLbl]] = inlineVal;
+            if (itemStr.indexOf(lbl) === 0) {
+                foundLbl = lbl;
+                foundInlineVal = itemStr.substring(lbl.length).trim();
+                break;
             }
+        }
+        if (foundLbl && foundInlineVal && foundInlineVal !== 'N/A') {
+            // Got label + value inline — store and move on
+            result[infoLabels[foundLbl]] = foundInlineVal;
             continue;
         }
+        // foundLbl matched but value was empty: the label is a standalone text
+        // run — fall through to Case B to pick up the value from the next item
 
-        // Case B: label is its own text run; value items follow to its right
+        // Case B: standalone label — value items follow to its right on same line
         if (!itemStr.endsWith(':')) continue;
         if (!infoLabels.hasOwnProperty(itemStr)) continue;
 
@@ -789,11 +792,11 @@ function parseTbPdfItems(allItems) {
 
         for (var j = i + 1; j < sortedAll.length; j++) {
             var vItem = sortedAll[j];
-            if (Math.abs(vItem.transform[5] - lblY) > 5) break; // next line
-            if (vItem.transform[4] <= lblX) continue;           // to the left
+            if (Math.abs(vItem.transform[5] - lblY) > 5) break; // moved to next line
+            if (vItem.transform[4] <= lblX) continue;           // to the left, skip
             var vStr = vItem.str.trim();
             if (!vStr) continue;
-            if (vStr.endsWith(':')) break;                       // next label
+            if (vStr.endsWith(':')) break;                       // hit the next label
             if (vStr !== 'N/A') valueParts.push(vStr);
         }
 
@@ -803,8 +806,14 @@ function parseTbPdfItems(allItems) {
     }
 
     // ── 2. Table items: line-based extraction ──────────────────────────────
-    // Items within a table row share the same y-coordinate, so grouping by
-    // y is correct here. Join with spaces so the item regex works reliably.
+    // Each table row shares a y-coordinate so grouping by y is correct.
+    // Join items with spaces so the item regex works: without this, adjacent
+    // text items concatenate as "Door installation2£150.00" and the regex fails.
+    //
+    // Section/category detection uses font weight: both section rows and category
+    // rows are rendered bold (font-weight:bold via inline style / .category-row).
+    // Wrapped description continuations are NOT bold. Checking fontName for
+    // "Bold" lets us skip continuations and avoid creating phantom sections.
 
     var lines = groupPdfItemsIntoLines(allItems);
     var inTable = false;
@@ -812,12 +821,10 @@ function parseTbPdfItems(allItems) {
     var currentSection = '';
 
     for (var li = 0; li < lines.length; li++) {
-        // Join with spaces — critical: without this, adjacent text items like
-        // "Door installation" + "2" + "£150.00" merge into "Door installation2£150.00"
         var lineText = lines[li].map(function(it) { return it.str; }).join(' ').replace(/\s+/g, ' ').trim();
         if (!lineText) continue;
 
-        // Table header
+        // Table header row
         if (/Description\s+Qty\s+Unit price\s+Total price/i.test(lineText)) {
             inTable = true;
             continue;
@@ -831,27 +838,38 @@ function parseTbPdfItems(allItems) {
             continue;
         }
 
-        // Item row: description  qty  £unitPrice  £lineTotal
+        // Item row: "description  qty  £unitPrice  £lineTotal"
         var itemM = lineText.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s+£([\d,]+\.\d{2})\s+£([\d,]+\.\d{2})$/);
         if (itemM) {
             result.items.push({
-                category: currentCategory || 'Materials',
+                category:  currentCategory || 'Materials',
                 description: itemM[1].trim(),
-                quantity:   parseFloat(itemM[2]),
-                unit:       'job',
-                unitPrice:  parseFloat(itemM[3].replace(/,/g, '')),
-                lineTotal:  parseFloat(itemM[4].replace(/,/g, '')),
-                section:    currentSection
+                quantity:  parseFloat(itemM[2]),
+                unit:      'job',
+                unitPrice: parseFloat(itemM[3].replace(/,/g, '')),
+                lineTotal: parseFloat(itemM[4].replace(/,/g, '')),
+                section:   currentSection
             });
             continue;
         }
 
-        // Spanning row (no £): category sub-header or section header
+        // Spanning row (no £): category sub-header or section header.
+        // Only process if the line is BOLD — non-bold spanning text is a
+        // wrapped description continuation from the item above; ignore it.
         if (lineText.indexOf('£') === -1) {
+            var lineBold = false;
+            for (var k = 0; k < lines[li].length; k++) {
+                if (lines[li][k].fontName && /Bold/i.test(lines[li][k].fontName)) {
+                    lineBold = true;
+                    break;
+                }
+            }
+            if (!lineBold) continue; // description continuation — skip
+
             if (statementCategoryOrder.indexOf(lineText) !== -1) {
                 currentCategory = lineText;
             } else if (lineText.length > 0 && lineText.length < 80) {
-                // User-defined section header (amber row)
+                // Bold text not matching a known category = user section header
                 currentSection = lineText;
                 currentCategory = '';
                 if (result.sections.indexOf(lineText) === -1) {
