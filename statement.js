@@ -714,15 +714,15 @@ function groupPdfItemsIntoLines(items) {
     var sorted = items.slice().sort(function(a, b) {
         var ay = a.transform[5], by = b.transform[5];
         var ax = a.transform[4], bx = b.transform[4];
-        if (Math.abs(ay - by) > 4) return by - ay;  // different lines: top first
-        return ax - bx;                               // same line: left first
+        if (Math.abs(ay - by) > 5) return by - ay;
+        return ax - bx;
     });
     var lines = [];
     var curItems = [];
     var curY = null;
     for (var i = 0; i < sorted.length; i++) {
         var y = sorted[i].transform[5];
-        if (curY === null || Math.abs(y - curY) > 4) {
+        if (curY === null || Math.abs(y - curY) > 5) {
             if (curItems.length) lines.push(curItems);
             curItems = [sorted[i]];
             curY = y;
@@ -741,79 +741,126 @@ function parseTbPdfItems(allItems) {
         items: [], sections: []
     };
 
+    // ── 1. Client info: label→value pair extraction ────────────────────────
+    // The info-section is a two-column flex layout, so items from both columns
+    // share the same y-coordinate. We cannot join a whole line — instead we
+    // find each label item and collect the value items immediately to its right
+    // before the next label (or the next y-level) is reached.
+
+    var sortedAll = allItems.slice().sort(function(a, b) {
+        var ay = a.transform[5], by = b.transform[5];
+        var ax = a.transform[4], bx = b.transform[4];
+        if (Math.abs(ay - by) > 5) return by - ay;
+        return ax - bx;
+    });
+
+    var infoLabels = {
+        'Name:':     'clientName',
+        'Address:':  'projectAddress',
+        'Postcode:': 'projectPostcode',
+        'Phone:':    'clientPhone',
+        'Email:':    'clientEmail'
+    };
+
+    for (var i = 0; i < sortedAll.length; i++) {
+        var itemStr = sortedAll[i].str.trim();
+        if (!itemStr) continue;
+
+        // Case A: label and value rendered as one text run, e.g. "Name: John Smith"
+        var foundLbl = null;
+        for (var lbl in infoLabels) {
+            if (itemStr.indexOf(lbl) === 0) { foundLbl = lbl; break; }
+        }
+        if (foundLbl) {
+            var inlineVal = itemStr.substring(foundLbl.length).trim();
+            if (inlineVal && inlineVal !== 'N/A') {
+                result[infoLabels[foundLbl]] = inlineVal;
+            }
+            continue;
+        }
+
+        // Case B: label is its own text run; value items follow to its right
+        if (!itemStr.endsWith(':')) continue;
+        if (!infoLabels.hasOwnProperty(itemStr)) continue;
+
+        var lblX = sortedAll[i].transform[4];
+        var lblY = sortedAll[i].transform[5];
+        var valueParts = [];
+
+        for (var j = i + 1; j < sortedAll.length; j++) {
+            var vItem = sortedAll[j];
+            if (Math.abs(vItem.transform[5] - lblY) > 5) break; // next line
+            if (vItem.transform[4] <= lblX) continue;           // to the left
+            var vStr = vItem.str.trim();
+            if (!vStr) continue;
+            if (vStr.endsWith(':')) break;                       // next label
+            if (vStr !== 'N/A') valueParts.push(vStr);
+        }
+
+        if (valueParts.length > 0) {
+            result[infoLabels[itemStr]] = valueParts.join(' ').replace(/\s+/g, ' ').trim();
+        }
+    }
+
+    // ── 2. Table items: line-based extraction ──────────────────────────────
+    // Items within a table row share the same y-coordinate, so grouping by
+    // y is correct here. Join with spaces so the item regex works reliably.
+
     var lines = groupPdfItemsIntoLines(allItems);
     var inTable = false;
     var currentCategory = '';
     var currentSection = '';
 
     for (var li = 0; li < lines.length; li++) {
-        var lineText = '';
-        for (var ti = 0; ti < lines[li].length; ti++) {
-            lineText += lines[li][ti].str;
-        }
-        lineText = lineText.replace(/\s+/g, ' ').trim();
+        // Join with spaces — critical: without this, adjacent text items like
+        // "Door installation" + "2" + "£150.00" merge into "Door installation2£150.00"
+        var lineText = lines[li].map(function(it) { return it.str; }).join(' ').replace(/\s+/g, ' ').trim();
         if (!lineText) continue;
 
-        // ── Client info ────────────────────────────────────────────────────
-        var m = lineText.match(/^Name:\s*(.+)/);
-        if (m) { result.clientName = m[1].trim(); continue; }
-
-        m = lineText.match(/^Address:\s*(.+)/);
-        if (m) { result.projectAddress = m[1].trim(); continue; }
-
-        m = lineText.match(/^Postcode:\s*(.+)/);
-        if (m && m[1].trim() !== 'N/A') { result.projectPostcode = m[1].trim(); continue; }
-
-        m = lineText.match(/^Phone:\s*(.+)/);
-        if (m && m[1].trim() !== 'N/A') { result.clientPhone = m[1].trim(); continue; }
-
-        m = lineText.match(/^Email:\s*(.+)/);
-        if (m && m[1].trim() !== 'N/A') { result.clientEmail = m[1].trim(); continue; }
-
-        // ── Table header ───────────────────────────────────────────────────
-        if (/Description.*Qty.*Unit price.*Total price/i.test(lineText)) {
+        // Table header
+        if (/Description\s+Qty\s+Unit price\s+Total price/i.test(lineText)) {
             inTable = true;
             continue;
         }
 
         if (!inTable) continue;
 
-        // ── Stop at totals / notes ─────────────────────────────────────────
-        if (/^(Subtotal|VAT|Total|Notes?:|Payment Terms|Statement includes)/i.test(lineText)) {
+        // Stop at totals / notes
+        if (/^(Subtotal|VAT\b|Total\b|Notes?:|Payment Terms|Statement includes)/i.test(lineText)) {
             inTable = false;
             continue;
         }
 
-        // ── Item row: "description qty £unitPrice £lineTotal" ──────────────
+        // Item row: description  qty  £unitPrice  £lineTotal
         var itemM = lineText.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s+£([\d,]+\.\d{2})\s+£([\d,]+\.\d{2})$/);
         if (itemM) {
             result.items.push({
                 category: currentCategory || 'Materials',
                 description: itemM[1].trim(),
-                quantity: parseFloat(itemM[2]),
-                unit: 'job',
-                unitPrice: parseFloat(itemM[3].replace(/,/g, '')),
-                lineTotal: parseFloat(itemM[4].replace(/,/g, '')),
-                section: currentSection
+                quantity:   parseFloat(itemM[2]),
+                unit:       'job',
+                unitPrice:  parseFloat(itemM[3].replace(/,/g, '')),
+                lineTotal:  parseFloat(itemM[4].replace(/,/g, '')),
+                section:    currentSection
             });
             continue;
         }
 
-        // ── Spanning row: category header or section header ────────────────
+        // Spanning row (no £): category sub-header or section header
         if (lineText.indexOf('£') === -1) {
-            var isKnownCat = statementCategoryOrder.indexOf(lineText) !== -1;
-            if (isKnownCat) {
+            if (statementCategoryOrder.indexOf(lineText) !== -1) {
                 currentCategory = lineText;
             } else if (lineText.length > 0 && lineText.length < 80) {
-                // User-defined section header (amber row in the PDF)
+                // User-defined section header (amber row)
                 currentSection = lineText;
-                currentCategory = '';  // reset; sub-category rows will follow
+                currentCategory = '';
                 if (result.sections.indexOf(lineText) === -1) {
                     result.sections.push(lineText);
                 }
             }
         }
     }
+
     return result;
 }
 
