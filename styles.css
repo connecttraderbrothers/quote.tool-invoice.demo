@@ -576,3 +576,45 @@ table tbody tr:last-child td {
 .btn-cancel:hover {
     background: #616161;
 }
+
+/* ── Import drop zone ──────────────────────────────────────────────────────── */
+.import-zone {
+    border: 2px dashed #d4af37;
+    border-radius: 10px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    background: #fafafa;
+    transition: background 0.2s, border-color 0.2s;
+    user-select: none;
+}
+
+.import-zone:hover {
+    background: #fff8e7;
+    border-color: #bc9c22;
+}
+
+.import-zone-over {
+    background: #fff3cc;
+    border-color: #bc9c22;
+    border-style: solid;
+}
+
+.import-zone-icon {
+    font-size: 36px;
+    color: #d4af37;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.import-zone-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 4px;
+}
+
+.import-zone-sub {
+    font-size: 12px;
+    color: #999;
+}

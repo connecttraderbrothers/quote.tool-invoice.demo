@@ -829,3 +829,26 @@ function updateEstimateActiveSectionIndicator() {
         indicator.style.display = 'none';
     }
 }
+
+function exportEstimateItems() {
+    if (items.length === 0) {
+        alert('No items to export. Please add items first.');
+        return;
+    }
+    var num = String(estimateNumber).padStart(4, '0');
+    var data = {
+        source: 'estimate',
+        number: num,
+        items: items,
+        sections: estimateSections
+    };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'estimate-' + num + '.tbdata.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}

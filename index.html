@@ -323,6 +323,7 @@
             <div id="generateSection" style="display: none; margin-top: 20px; text-align: center;">
                 <button class="btn btn-success" onclick="previewQuote()">Preview Quote</button>
                 <button class="btn btn-secondary" onclick="downloadQuote()">Download PDF</button>
+                <button class="btn btn-secondary" onclick="exportEstimateItems()" title="Export items as a file to import into the Statement tool">Export Items</button>
             </div>
         </div>
 
@@ -547,6 +548,7 @@
             <div id="generateInvoiceSection" style="display: none; margin-top: 20px; text-align: center;">
                 <button class="btn btn-success" onclick="previewInvoice()">Preview Invoice</button>
                 <button class="btn btn-secondary" onclick="downloadInvoice()">Download PDF</button>
+                <button class="btn btn-secondary" onclick="exportInvoiceItems()" title="Export items as a file to import into the Statement tool">Export Items</button>
             </div>
         </div>
 
@@ -633,6 +635,17 @@
                 <div id="statementSectionsList" style="margin-top: 15px;">
                     <p style="color: #999; font-size: 13px; margin-top: 8px;">No sections yet. Add a section above to organise your line items.</p>
                 </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Import from Estimate / Invoice</h2>
+                <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Export items from a previous estimate or invoice using the <strong>Export Items</strong> button in those tools, then drag and drop or attach the file here to auto-fill the line items below.</p>
+                <div id="statementImportZone" class="import-zone">
+                    <div class="import-zone-icon">&#8659;</div>
+                    <p class="import-zone-text">Drag &amp; drop an export file here</p>
+                    <p class="import-zone-sub">or click to browse</p>
+                </div>
+                <input type="file" id="statementImportFile" accept=".json" style="display: none;">
             </div>
 
             <div class="section">

@@ -632,3 +632,73 @@ function updateStatementTable() {
 function closeStatementPreview() {
     document.getElementById('statementPreviewModal').style.display = 'none';
 }
+
+// ── Import from Estimate / Invoice ────────────────────────────────────────────
+
+function processStatementImportFile(file) {
+    if (!file.name.endsWith('.tbdata.json')) {
+        alert('Please attach a valid Trader Brothers export file (.tbdata.json)');
+        return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            var data = JSON.parse(e.target.result);
+            if (!data.items || !Array.isArray(data.items) || data.items.length === 0) {
+                alert('No items found in this export file.');
+                return;
+            }
+            // Merge sections that do not already exist
+            if (data.sections && Array.isArray(data.sections)) {
+                for (var i = 0; i < data.sections.length; i++) {
+                    if (statementSections.indexOf(data.sections[i]) === -1) {
+                        statementSections.push(data.sections[i]);
+                    }
+                }
+                renderStatementSections();
+            }
+            // Append items
+            for (var j = 0; j < data.items.length; j++) {
+                statementItems.push(data.items[j]);
+            }
+            updateStatementTable();
+            var source = data.source || 'file';
+            var label = data.number ? source + ' #' + data.number : source;
+            alert(data.items.length + ' item(s) imported from ' + label + '.');
+        } catch (err) {
+            alert('Could not read the file. Please make sure it is a valid export file.');
+        }
+    };
+    reader.readAsText(file);
+}
+
+// Wire up drag-and-drop and click-to-browse on the import zone
+(function() {
+    var zone = document.getElementById('statementImportZone');
+    var fileInput = document.getElementById('statementImportFile');
+    if (!zone || !fileInput) return;
+
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        zone.classList.add('import-zone-over');
+    });
+    zone.addEventListener('dragleave', function() {
+        zone.classList.remove('import-zone-over');
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.classList.remove('import-zone-over');
+        if (e.dataTransfer.files.length > 0) {
+            processStatementImportFile(e.dataTransfer.files[0]);
+        }
+    });
+    zone.addEventListener('click', function() {
+        fileInput.click();
+    });
+    fileInput.addEventListener('change', function() {
+        if (fileInput.files.length > 0) {
+            processStatementImportFile(fileInput.files[0]);
+            fileInput.value = '';
+        }
+    });
+}());

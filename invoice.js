@@ -599,3 +599,26 @@ function updateInvoiceActiveSectionIndicator() {
         indicator.style.display = 'none';
     }
 }
+
+function exportInvoiceItems() {
+    if (invoiceItems.length === 0) {
+        alert('No items to export. Please add items first.');
+        return;
+    }
+    var num = String(invoiceNumber).padStart(4, '0');
+    var data = {
+        source: 'invoice',
+        number: num,
+        items: invoiceItems,
+        sections: invoiceSections
+    };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'invoice-' + num + '.tbdata.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
