@@ -116,26 +116,31 @@ document.getElementById('tradeCategory').addEventListener('change', function() {
     var selectedTrade = this.value;
     var rateInfo = document.getElementById('tradeRateInfo');
     
-    if (selectedTrade && tradeRates[selectedTrade]) {
-        var rates = tradeRates[selectedTrade];
-        var infoText = 'Standard rates: ';
-        var rateParts = [];
-        
-        if (rates.hourly > 0) rateParts.push('£' + rates.hourly + '/hr');
-        if (rates.daily > 0) rateParts.push('£' + rates.daily + '/day');
-        if (rates.job > 0) rateParts.push('£' + rates.job + '/job');
-        
-        if (rateParts.length > 0) {
-            infoText += rateParts.join(' | ');
-            rateInfo.textContent = infoText;
-        } else {
-            rateInfo.textContent = '';
-        }
-        
-        updatePriceFromTrade();
-    } else {
+    var customGroup = document.getElementById('customCategoryGroup');
+    if (selectedTrade === 'Custom') {
+        customGroup.classList.remove('hidden');
         rateInfo.textContent = '';
         document.getElementById('unitPrice').value = '';
+    } else {
+        customGroup.classList.add('hidden');
+        if (selectedTrade && tradeRates[selectedTrade]) {
+            var rates = tradeRates[selectedTrade];
+            var infoText = 'Standard rates: ';
+            var rateParts = [];
+            if (rates.hourly > 0) rateParts.push('£' + rates.hourly + '/hr');
+            if (rates.daily > 0) rateParts.push('£' + rates.daily + '/day');
+            if (rates.job > 0) rateParts.push('£' + rates.job + '/job');
+            if (rateParts.length > 0) {
+                infoText += rateParts.join(' | ');
+                rateInfo.textContent = infoText;
+            } else {
+                rateInfo.textContent = '';
+            }
+            updatePriceFromTrade();
+        } else {
+            rateInfo.textContent = '';
+            document.getElementById('unitPrice').value = '';
+        }
     }
 });
 
@@ -191,6 +196,10 @@ document.querySelectorAll('.rate-type-btn').forEach(function(btn) {
 
 function addItem() {
     var category = document.getElementById('tradeCategory').value || 'General';
+    if (category === 'Custom') {
+        category = document.getElementById('customCategoryName').value.trim();
+        if (!category) { alert('Please enter a category name.'); return; }
+    }
     var description = document.getElementById('description').value;
     var quantity = parseFloat(document.getElementById('quantity').value);
     var unitPrice = parseFloat(document.getElementById('unitPrice').value);
@@ -235,6 +244,8 @@ function clearForm() {
     document.getElementById('customUnit').value = '';
     document.getElementById('tradeCategory').selectedIndex = 0;
     document.getElementById('tradeRateInfo').textContent = '';
+    document.getElementById('customCategoryName').value = '';
+    document.getElementById('customCategoryGroup').classList.add('hidden');
 }
 
 function editItem(index) {
@@ -248,6 +259,10 @@ function editItem(index) {
     var categoryOptions = '';
     var categories = Object.keys(tradeRates);
     categories.unshift('General');
+    // If the item's category isn't in the known list (custom name), add it so it shows correctly
+    if (item.category && categories.indexOf(item.category) === -1) {
+        categories.push(item.category);
+    }
     for (var i = 0; i < categories.length; i++) {
         var selected = categories[i] === item.category ? 'selected' : '';
         categoryOptions += '<option value="' + categories[i] + '" ' + selected + '>' + categories[i] + '</option>';
