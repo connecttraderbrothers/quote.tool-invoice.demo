@@ -116,26 +116,31 @@ document.getElementById('invoiceTradeCategory').addEventListener('change', funct
     var selectedTrade = this.value;
     var rateInfo = document.getElementById('invoiceTradeRateInfo');
     
-    if (selectedTrade && invoiceTradeRates[selectedTrade]) {
-        var rates = invoiceTradeRates[selectedTrade];
-        var infoText = 'Standard rates: ';
-        var rateParts = [];
-        
-        if (rates.hourly > 0) rateParts.push('£' + rates.hourly + '/hr');
-        if (rates.daily > 0) rateParts.push('£' + rates.daily + '/day');
-        if (rates.job > 0) rateParts.push('£' + rates.job + '/job');
-        
-        if (rateParts.length > 0) {
-            infoText += rateParts.join(' | ');
-            rateInfo.textContent = infoText;
-        } else {
-            rateInfo.textContent = '';
-        }
-        
-        updateInvoicePriceFromTrade();
-    } else {
+    var customGroup = document.getElementById('invoiceCustomCategoryGroup');
+    if (selectedTrade === 'Custom') {
+        customGroup.classList.remove('hidden');
         rateInfo.textContent = '';
         document.getElementById('invoiceUnitPrice').value = '';
+    } else {
+        customGroup.classList.add('hidden');
+        if (selectedTrade && invoiceTradeRates[selectedTrade]) {
+            var rates = invoiceTradeRates[selectedTrade];
+            var infoText = 'Standard rates: ';
+            var rateParts = [];
+            if (rates.hourly > 0) rateParts.push('£' + rates.hourly + '/hr');
+            if (rates.daily > 0) rateParts.push('£' + rates.daily + '/day');
+            if (rates.job > 0) rateParts.push('£' + rates.job + '/job');
+            if (rateParts.length > 0) {
+                infoText += rateParts.join(' | ');
+                rateInfo.textContent = infoText;
+            } else {
+                rateInfo.textContent = '';
+            }
+            updateInvoicePriceFromTrade();
+        } else {
+            rateInfo.textContent = '';
+            document.getElementById('invoiceUnitPrice').value = '';
+        }
     }
 });
 
@@ -191,6 +196,10 @@ document.querySelectorAll('.invoice-rate-btn').forEach(function(btn) {
 
 function addInvoiceItem() {
     var category = document.getElementById('invoiceTradeCategory').value || 'General';
+    if (category === 'Custom') {
+        category = document.getElementById('invoiceCustomCategoryName').value.trim();
+        if (!category) { alert('Please enter a category name.'); return; }
+    }
     var description = document.getElementById('invoiceDescription').value;
     var quantity = parseFloat(document.getElementById('invoiceQuantity').value);
     var unitPrice = parseFloat(document.getElementById('invoiceUnitPrice').value);
@@ -235,6 +244,8 @@ function clearInvoiceForm() {
     document.getElementById('invoiceCustomUnit').value = '';
     document.getElementById('invoiceTradeCategory').selectedIndex = 0;
     document.getElementById('invoiceTradeRateInfo').textContent = '';
+    document.getElementById('invoiceCustomCategoryName').value = '';
+    document.getElementById('invoiceCustomCategoryGroup').classList.add('hidden');
 }
 
 function editInvoiceItem(index) {
@@ -248,6 +259,10 @@ function editInvoiceItem(index) {
     var categoryOptions = '';
     var categories = Object.keys(invoiceTradeRates);
     categories.unshift('General');
+    // If the item's category isn't in the known list (custom name), add it so it shows correctly
+    if (item.category && categories.indexOf(item.category) === -1) {
+        categories.push(item.category);
+    }
     for (var i = 0; i < categories.length; i++) {
         var selected = categories[i] === item.category ? 'selected' : '';
         categoryOptions += '<option value="' + categories[i] + '" ' + selected + '>' + categories[i] + '</option>';
