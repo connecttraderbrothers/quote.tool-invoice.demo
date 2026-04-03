@@ -194,16 +194,7 @@ function previewInvoice() {
             }
         });
     } else {
-        var sortedItems = sortInvoiceItemsByCategory(invoiceItems);
-        var groupedItems = groupInvoiceItemsByCategory(sortedItems);
-        categoryOrder.forEach(function(category) {
-            if (groupedItems[category]) {
-                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
-                groupedItems[category].forEach(function(item) {
-                    previewHtml += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
-                });
-            }
-        });
+        renderPreviewInvoiceByCat(invoiceItems);
     }
 
     previewHtml += `
@@ -781,16 +772,7 @@ function generateInvoiceHTML() {
             }
         });
     } else {
-        var sortedItems = sortInvoiceItemsByCategory(invoiceItems);
-        var groupedItems = groupInvoiceItemsByCategory(sortedItems);
-        categoryOrder.forEach(function(category) {
-            if (groupedItems[category]) {
-                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
-                groupedItems[category].forEach(function(item) {
-                    bodyContent += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
-                });
-            }
-        });
+        renderPdfInvoiceByCat(invoiceItems);
     }
 
     bodyContent += `
