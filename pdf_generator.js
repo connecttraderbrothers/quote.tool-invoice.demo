@@ -346,16 +346,7 @@ function generateCompleteHTML() {
             }
         });
     } else {
-        var sortedItems = sortItemsByCategory(items);
-        var groupedItems = groupItemsByCategory(sortedItems);
-        categoryOrder.forEach(function(category) {
-            if (groupedItems[category]) {
-                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
-                groupedItems[category].forEach(function(item) {
-                    bodyContent += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
-                });
-            }
-        });
+        renderPdfEstimateByCat(items);
     }
 
     bodyContent += `
