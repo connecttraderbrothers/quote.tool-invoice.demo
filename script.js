@@ -824,3 +824,166 @@ window.onclick = function(event) {
         closePreview();
     }
 };
+
+// ─── PDF Import ───────────────────────────────────────────────────────────────
+
+// Configure PDF.js worker (loaded from CDN in index.html)
+if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+// Wire up drag-and-drop on the import zone
+(function () {
+    var zone = document.getElementById('importDropZone');
+    if (!zone) return;
+
+    zone.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        zone.classList.add('import-drag-over');
+    });
+    zone.addEventListener('dragleave', function () {
+        zone.classList.remove('import-drag-over');
+    });
+    zone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        zone.classList.remove('import-drag-over');
+        var file = e.dataTransfer.files[0];
+        if (file && file.type === 'application/pdf') {
+            importFromPDF(file);
+        } else {
+            alert('Please drop a PDF file.');
+        }
+    });
+}());
+
+function handleEstimateImport(event) {
+    var file = event.target.files[0];
+    if (file) importFromPDF(file);
+    event.target.value = '';
+}
+
+function importFromPDF(file) {
+    if (typeof pdfjsLib === 'undefined') {
+        alert('PDF library failed to load. Please check your internet connection and refresh the page.');
+        return;
+    }
+
+    setImportZoneState('loading');
+
+    var reader = new FileReader();
+    reader.onload = function (e) {
+        pdfjsLib.getDocument({ data: e.target.result }).promise
+            .then(function (pdfDoc) {
+                return extractFullText(pdfDoc);
+            })
+            .then(function (fullText) {
+                return decodeEmbeddedPayload(fullText);
+            })
+            .then(function (data) {
+                setImportZoneState('ready');
+                if (data) applyImportedData(data);
+            })
+            .catch(function (err) {
+                console.error('PDF import error:', err);
+                setImportZoneState('ready');
+                alert('Could not read the PDF.\n\nOnly estimates downloaded from this tool contain the embedded import data needed for accurate import. Please download a fresh PDF from this tool and try again.');
+            });
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// Concatenate every text item from every page into one string (space-separated).
+// The embedded payload is then found by its markers regardless of how PDF.js chunked it.
+function extractFullText(pdfDoc) {
+    var pagePromises = [];
+    for (var i = 1; i <= pdfDoc.numPages; i++) {
+        pagePromises.push(
+            pdfDoc.getPage(i).then(function (page) {
+                return page.getTextContent().then(function (tc) {
+                    return tc.items.map(function (item) { return item.str; }).join(' ');
+                });
+            })
+        );
+    }
+    return Promise.all(pagePromises).then(function (pages) {
+        return pages.join(' ');
+    });
+}
+
+// Locate the OMEGA markers, strip any whitespace PDF.js may have inserted inside
+// the base64 string (due to line-wrapping), then decode back to the original objects.
+function decodeEmbeddedPayload(text) {
+    var START = 'OMEGA_IMPORT_V1_START';
+    var END   = 'OMEGA_IMPORT_V1_END';
+    var si = text.indexOf(START);
+    var ei = text.indexOf(END);
+
+    if (si === -1 || ei === -1 || ei <= si) {
+        alert('No import data found in this PDF.\n\nOnly estimates downloaded from OMEGA after import support was added contain embedded data. Download a new PDF from this tool to enable import.');
+        return null;
+    }
+
+    var raw = text.slice(si + START.length, ei).replace(/\s/g, '');
+    try {
+        return JSON.parse(decodeURIComponent(atob(raw)));
+    } catch (e) {
+        console.error('Payload decode failed:', e);
+        alert('The import data in this PDF could not be decoded. The file may be corrupted or from an incompatible version of this tool.');
+        return null;
+    }
+}
+
+function applyImportedData(data) {
+    if (!data || !Array.isArray(data.items)) {
+        alert('Invalid import data structure.');
+        return;
+    }
+
+    var itemCount    = data.items.length;
+    var sectionCount = (data.sections && data.sections.length) ? data.sections.length : 0;
+    var msg = 'Import ' + itemCount + ' item' + (itemCount !== 1 ? 's' : '');
+    if (sectionCount > 0) msg += ' across ' + sectionCount + ' section' + (sectionCount !== 1 ? 's' : '');
+    msg += ' from this estimate?\n\n(Items will be added to any already in the current quote.)';
+
+    if (!confirm(msg)) return;
+
+    // Merge sections — skip any whose ID already exists
+    if (sectionCount > 0) {
+        var existingIds = {};
+        quoteSections.forEach(function (s) { existingIds[s.id] = true; });
+
+        data.sections.forEach(function (sec) {
+            if (!existingIds[sec.id]) {
+                quoteSections.push(sec);
+                var num = parseInt(sec.id.replace('sec-', ''), 10);
+                if (!isNaN(num) && num > sectionCounter) sectionCounter = num;
+            }
+        });
+
+        if (!currentSectionId && quoteSections.length > 0) {
+            currentSectionId = quoteSections[0].id;
+        }
+        renderSectionsPanel();
+    }
+
+    // Add items
+    data.items.forEach(function (item) { items.push(item); });
+    updateQuoteTable();
+
+    alert('Successfully imported ' + itemCount + ' item' + (itemCount !== 1 ? 's' : '') + '!');
+}
+
+function setImportZoneState(state) {
+    var zone = document.getElementById('importDropZone');
+    if (!zone) return;
+    if (state === 'loading') {
+        zone.innerHTML = '<p class="import-drop-text">Reading PDF\u2026</p><p class="import-drop-sub">Please wait</p>';
+        zone.classList.add('import-loading');
+    } else {
+        zone.innerHTML = '<div class="import-icon">&#128196;</div>' +
+            '<p class="import-drop-text">Drag &amp; drop an estimate PDF here</p>' +
+            '<p class="import-drop-sub">or click to browse files</p>';
+        zone.classList.remove('import-loading');
+    }
+}

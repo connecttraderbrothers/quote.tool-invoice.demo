@@ -365,10 +365,18 @@ function generateCompleteHTML() {
 
       <div class="footer-note">
         If you have any questions about this estimate, please contact<br>
-        us at traderbrotherslimited@gmail.com, or 07931 810557 
+        us at traderbrotherslimited@gmail.com, or 07931 810557
         <div class="thank-you">Thank you for your business</div>
       </div>
-    </div>`;
+    `;
+
+    // Embed machine-readable import payload as near-invisible text in the PDF text layer.
+    // PDF.js extracts this verbatim during import — guarantees 100% accurate data round-trip.
+    var importPayload = JSON.stringify({ v: 1, items: items, sections: quoteSections });
+    var importEncoded = btoa(encodeURIComponent(importPayload));
+    bodyContent += '<div style="font-size:4pt;color:#f5f5f5;font-family:Courier,monospace;' +
+        'line-height:4pt;word-break:break-all;margin:4px 0 0 0;padding:0;user-select:none;">' +
+        'OMEGA_IMPORT_V1_START' + importEncoded + 'OMEGA_IMPORT_V1_END</div></div>';
 
     return `<!DOCTYPE html>
 <html lang="en">
