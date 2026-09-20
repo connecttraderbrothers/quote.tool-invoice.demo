@@ -33,20 +33,19 @@ function previewStatement() {
       .statement-container-preview { font-family: "Times New Roman", Times, serif; background: white; padding: 30px; max-width: 100%; }\
       .header-preview { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #333; }\
       .company-info-preview { flex: 1; }\
-      .company-name-preview { font-size: 26px; font-weight: bold; margin-bottom: 10px; color: #333; letter-spacing: 0.5px; }\
-      .company-name-preview .highlight-preview { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }\
+      .company-name-preview { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333; }\
+      .company-name-preview .highlight-preview { background: linear-gradient(135deg, #b8860b, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }\
       .company-details-preview { font-size: 11px; line-height: 1.6; color: #666; }\
-      .company-details-preview .vat-line-preview { font-weight: bold; color: #8b6914; letter-spacing: 0.4px; }\
+      .company-details-preview .vat-line-preview { color: #b8860b; font-weight: 600; }\
       .logo-preview { width: 120px; height: auto; }\
-      .statement-banner-preview { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%); padding: 14px 30px; margin-bottom: 25px; display: inline-block; font-weight: bold; font-size: 17px; color: #3a2a05; letter-spacing: 1.5px; text-transform: uppercase; border: 2px double #4a3608; outline: 1px solid #daa520; outline-offset: 2px; box-shadow: inset 0 1px 3px rgba(255,248,220,0.6), inset 0 -2px 4px rgba(74,54,8,0.3), 0 2px 5px rgba(0,0,0,0.2); text-shadow: 0 1px 0 rgba(255,248,220,0.5); font-family: "Times New Roman", Times, serif; }\
-      .statement-banner-preview::before, .statement-banner-preview::after { content: "\\2766"; margin: 0 10px; color: #4a3608; font-weight: normal; }\
+      .statement-banner-preview { background: linear-gradient(135deg, #b8860b, #daa520); padding: 12px 24px; margin-bottom: 25px; display: inline-block; font-weight: 600; font-size: 15px; color: white; border-radius: 4px; font-family: "Times New Roman", Times, serif; }\
       .info-section-preview { display: flex; justify-content: space-between; margin-bottom: 30px; align-items: flex-start; gap: 100px; }\
       .client-info-preview { flex: 0 0 auto; }\
       .statement-details-preview { flex: 0 0 auto; }\
       .info-row-preview { font-size: 13px; line-height: 2; display: flex; align-items: center; }\
       .info-label-preview { color: #333; font-weight: bold; margin-right: 10px; min-width: 80px; }\
       .info-value-preview { color: #333; font-weight: normal; }\
-      .expiry-date-preview { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%); padding: 5px 12px; display: inline-block; color: #3a2a05; font-weight: bold; border: 1px solid #4a3608; box-shadow: inset 0 1px 2px rgba(255,248,220,0.5), inset 0 -1px 2px rgba(74,54,8,0.25); text-shadow: 0 1px 0 rgba(255,248,220,0.4); }\
+      .expiry-date-preview { background: linear-gradient(135deg, #b8860b, #daa520); padding: 4px 10px; display: inline-block; color: white; font-weight: 500; border-radius: 3px; }\
       .items-table-preview { width: 100%; border-collapse: collapse; margin: 30px 0; }\
       .items-table-preview thead { background: #f5f5f5; }\
       .items-table-preview th { padding: 12px; text-align: left; font-size: 12px; font-weight: bold; color: #333; border-bottom: 2px solid #ddd; }\
@@ -55,7 +54,7 @@ function previewStatement() {
       .items-table-preview td:nth-child(2), .items-table-preview td:nth-child(3), .items-table-preview td:nth-child(4) { text-align: right; }\
       .category-row { background: #f9f9f9; font-weight: bold; color: #333; }\
       .category-row td { padding: 10px 12px; border-bottom: 2px solid #ddd; }\
-      .notes-section-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 4px double #8b6914; }\
+      .notes-section-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 3px solid #b8860b; }\
       .notes-section-preview h3 { font-size: 13px; margin-bottom: 10px; color: #333; }\
       .notes-section-preview ol { margin-left: 20px; font-size: 12px; line-height: 1.8; color: #666; }\
       .totals-section-preview { margin-top: 30px; display: flex; justify-content: flex-end; }\
@@ -63,7 +62,7 @@ function previewStatement() {
       .total-row-preview { display: flex; justify-content: space-between; padding: 10px 15px; font-size: 13px; }\
       .total-row-preview.subtotal { border-top: 1px solid #ddd; }\
       .total-row-preview.vat { color: #666; }\
-      .total-row-preview.final { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%); color: #3a2a05; font-weight: bold; font-size: 17px; border: 2px double #4a3608; outline: 1px solid #daa520; outline-offset: 2px; margin-top: 8px; box-shadow: inset 0 1px 3px rgba(255,248,220,0.5), inset 0 -2px 4px rgba(74,54,8,0.3); text-shadow: 0 1px 0 rgba(255,248,220,0.4); letter-spacing: 0.5px; }\
+      .total-row-preview.final { background: linear-gradient(135deg, #b8860b, #daa520); color: white; font-weight: 600; font-size: 15px; border-top: 2px solid #333; margin-top: 5px; border-radius: 3px; }\
       .footer-note-preview { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; font-size: 11px; color: #666; font-style: italic; }\
       .thank-you-preview { margin-top: 15px; font-weight: bold; color: #333; font-size: 12px; }\
     </style>\
@@ -157,7 +156,7 @@ function previewStatement() {
         statementSections.forEach(function(sectionName) {
             var sectionItems = statementItems.filter(function(it) { return it.section === sectionName; });
             if (sectionItems.length > 0) {
-                previewHtml += '<tr><td colspan="4" style="padding: 10px 14px; font-weight: bold; color: #3a2a05; font-size: 14px; background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%); border: 1px solid #4a3608; text-shadow: 0 1px 0 rgba(255,248,220,0.4); letter-spacing: 0.5px; font-family: \'Times New Roman\', Times, serif;">&#10086; ' + sectionName + ' &#10086;</td></tr>';
+                previewHtml += '<tr><td colspan="4" style="padding: 10px 14px; font-weight: 600; color: white; font-size: 13px; background: linear-gradient(135deg, #b8860b, #daa520);">' + sectionName + '</td></tr>';
                 renderPreviewItemsByCat(sectionItems);
             }
         });
@@ -243,20 +242,19 @@ function generateStatementHTML() {
       .statement-container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-family: "Times New Roman", Times, serif; }\
       .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #333; }\
       .company-info { flex: 1; }\
-      .company-name { font-size: 26px; font-weight: bold; margin-bottom: 10px; color: #333; letter-spacing: 0.5px; }\
-      .company-name .highlight { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }\
+      .company-name { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333; }\
+      .company-name .highlight { background: linear-gradient(135deg, #b8860b, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }\
       .company-details { font-size: 11px; line-height: 1.6; color: #666; }\
-      .company-details .vat-line { font-weight: bold; color: #8b6914; letter-spacing: 0.4px; }\
+      .company-details .vat-line { color: #b8860b; font-weight: 600; }\
       .logo { width: 120px; height: auto; }\
-      .statement-banner { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%); padding: 14px 30px; margin-bottom: 25px; display: inline-block; font-weight: bold; font-size: 17px; color: #3a2a05; letter-spacing: 1.5px; text-transform: uppercase; border: 2px double #4a3608; outline: 1px solid #daa520; outline-offset: 2px; box-shadow: inset 0 1px 3px rgba(255,248,220,0.6), inset 0 -2px 4px rgba(74,54,8,0.3), 0 2px 5px rgba(0,0,0,0.2); text-shadow: 0 1px 0 rgba(255,248,220,0.5); font-family: "Times New Roman", Times, serif; }\
-      .statement-banner::before, .statement-banner::after { content: "\\2766"; margin: 0 10px; color: #4a3608; font-weight: normal; }\
+      .statement-banner { background: linear-gradient(135deg, #b8860b, #daa520); padding: 12px 24px; margin-bottom: 25px; display: inline-block; font-weight: 600; font-size: 15px; color: white; border-radius: 4px; font-family: "Times New Roman", Times, serif; }\
       .info-section { display: flex; justify-content: space-between; margin-bottom: 30px; align-items: flex-start; gap: 100px; }\
       .client-info { flex: 0 0 auto; }\
       .statement-details { flex: 0 0 auto; }\
       .info-row { font-size: 13px; line-height: 2; display: flex; align-items: center; }\
       .info-label { color: #333; font-weight: bold; margin-right: 10px; min-width: 80px; }\
       .info-value { color: #333; font-weight: normal; }\
-      .expiry-date { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%); padding: 5px 12px; display: inline-block; color: #3a2a05; font-weight: bold; border: 1px solid #4a3608; box-shadow: inset 0 1px 2px rgba(255,248,220,0.5), inset 0 -1px 2px rgba(74,54,8,0.25); text-shadow: 0 1px 0 rgba(255,248,220,0.4); }\
+      .expiry-date { background: linear-gradient(135deg, #b8860b, #daa520); padding: 4px 10px; display: inline-block; color: white; font-weight: 500; border-radius: 3px; }\
       .items-table { width: 100%; border-collapse: collapse; margin: 30px 0; }\
       .items-table thead { background: #f5f5f5; }\
       .items-table th { padding: 12px; text-align: left; font-size: 12px; font-weight: bold; color: #333; border-bottom: 2px solid #ddd; }\
@@ -265,7 +263,7 @@ function generateStatementHTML() {
       .items-table td:nth-child(2), .items-table td:nth-child(3), .items-table td:nth-child(4) { text-align: right; }\
       .category-row { background: #f9f9f9; font-weight: bold; color: #333; }\
       .category-row td { padding: 10px 12px; border-bottom: 2px solid #ddd; }\
-      .notes-section { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 4px double #8b6914; }\
+      .notes-section { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 3px solid #b8860b; }\
       .notes-section h3 { font-size: 13px; margin-bottom: 10px; color: #333; }\
       .notes-section ol { margin-left: 20px; font-size: 12px; line-height: 1.8; color: #666; }\
       .totals-section { margin-top: 30px; display: flex; justify-content: flex-end; }\
@@ -273,7 +271,7 @@ function generateStatementHTML() {
       .total-row { display: flex; justify-content: space-between; padding: 10px 15px; font-size: 13px; }\
       .total-row.subtotal { border-top: 1px solid #ddd; }\
       .total-row.vat { color: #666; }\
-      .total-row.final { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%); color: #3a2a05; font-weight: bold; font-size: 17px; border: 2px double #4a3608; outline: 1px solid #daa520; outline-offset: 2px; margin-top: 8px; box-shadow: inset 0 1px 3px rgba(255,248,220,0.5), inset 0 -2px 4px rgba(74,54,8,0.3); text-shadow: 0 1px 0 rgba(255,248,220,0.4); letter-spacing: 0.5px; }\
+      .total-row.final { background: linear-gradient(135deg, #b8860b, #daa520); color: white; font-weight: 600; font-size: 15px; border-top: 2px solid #333; margin-top: 5px; border-radius: 3px; }\
       .footer-note { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; font-size: 11px; color: #666; font-style: italic; }\
       .thank-you { margin-top: 15px; font-weight: bold; color: #333; font-size: 12px; }\
       @media print { body { background: white; padding: 0; } .statement-container { box-shadow: none; padding: 20px; } }\
@@ -343,7 +341,7 @@ function generateStatementHTML() {
         statementSections.forEach(function(sectionName) {
             var sectionItems = statementItems.filter(function(it) { return it.section === sectionName; });
             if (sectionItems.length > 0) {
-                bodyContent += '<tr><td colspan="4" style="padding: 10px 14px; font-weight: bold; color: #3a2a05; font-size: 14px; background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%); border: 1px solid #4a3608; text-shadow: 0 1px 0 rgba(255,248,220,0.4); letter-spacing: 0.5px; font-family: \'Times New Roman\', Times, serif;">&#10086; ' + sectionName + ' &#10086;</td></tr>';
+                bodyContent += '<tr><td colspan="4" style="padding: 10px 14px; font-weight: 600; color: white; font-size: 13px; background: linear-gradient(135deg, #b8860b, #daa520);">' + sectionName + '</td></tr>';
                 renderPdfItemsByCat(sectionItems);
             }
         });
