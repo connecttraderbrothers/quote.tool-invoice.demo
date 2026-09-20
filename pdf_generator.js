@@ -33,7 +33,7 @@ function generateCompleteHTML() {
         box-sizing: border-box;
       }
       body {
-        font-family: Arial, sans-serif;
+        font-family: 'Times New Roman', Times, serif;
         background: #f5f5f5;
         padding: 20px;
       }
@@ -43,6 +43,7 @@ function generateCompleteHTML() {
         background: white;
         padding: 40px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        font-family: 'Times New Roman', Times, serif;
       }
       .header {
         display: flex;
@@ -56,34 +57,56 @@ function generateCompleteHTML() {
         flex: 1;
       }
       .company-name {
-        font-size: 24px;
+        font-size: 26px;
         font-weight: bold;
         margin-bottom: 10px;
         color: #333;
+        letter-spacing: 0.5px;
       }
       .company-name .highlight {
-        background: linear-gradient(135deg, #bc9c22, #d4af37);
+        background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        text-shadow: 0 1px 0 rgba(255, 242, 184, 0.3);
       }
       .company-details {
         font-size: 11px;
         line-height: 1.6;
         color: #666;
       }
+      .company-details .vat-line {
+        font-weight: bold;
+        color: #8b6914;
+        letter-spacing: 0.4px;
+      }
       .logo {
         width: 120px;
         height: auto;
       }
       .estimate-banner {
-        background: linear-gradient(135deg, #bc9c22, #d4af37);
-        padding: 15px 20px;
+        background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%);
+        padding: 14px 30px;
         margin-bottom: 25px;
         display: inline-block;
         font-weight: bold;
-        font-size: 16px;
-        color: white;
+        font-size: 17px;
+        color: #3a2a05;
+        font-family: 'Times New Roman', Times, serif;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        border: 2px double #4a3608;
+        outline: 1px solid #daa520;
+        outline-offset: 2px;
+        box-shadow: inset 0 1px 3px rgba(255, 248, 220, 0.6), inset 0 -2px 4px rgba(74, 54, 8, 0.3), 0 2px 5px rgba(0, 0, 0, 0.2);
+        text-shadow: 0 1px 0 rgba(255, 248, 220, 0.5);
+      }
+      .estimate-banner::before,
+      .estimate-banner::after {
+        content: '\\2766';
+        margin: 0 10px;
+        color: #4a3608;
+        font-weight: normal;
       }
       .info-section {
         display: flex;
@@ -115,11 +138,14 @@ function generateCompleteHTML() {
         font-weight: normal;
       }
       .expiry-date {
-        background: linear-gradient(135deg, #bc9c22, #d4af37);
-        padding: 5px 10px;
+        background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%);
+        padding: 5px 12px;
         display: inline-block;
-        color: white;
-        font-weight: normal;
+        color: #3a2a05;
+        font-weight: bold;
+        border: 1px solid #4a3608;
+        box-shadow: inset 0 1px 2px rgba(255, 248, 220, 0.5), inset 0 -1px 2px rgba(74, 54, 8, 0.25);
+        text-shadow: 0 1px 0 rgba(255, 248, 220, 0.4);
       }
       .items-table {
         width: 100%;
@@ -167,7 +193,7 @@ function generateCompleteHTML() {
         margin: 30px 0;
         padding: 20px;
         background: #f9f9f9;
-        border-left: 3px solid #bc9c22;
+        border-left: 4px double #8b6914;
       }
       .notes-section h3 {
         font-size: 13px;
@@ -201,12 +227,17 @@ function generateCompleteHTML() {
         color: #666;
       }
       .total-row.final {
-        background: linear-gradient(135deg, #bc9c22, #d4af37);
-        color: white;
+        background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%);
+        color: #3a2a05;
         font-weight: bold;
-        font-size: 16px;
-        border-top: 2px solid #333;
-        margin-top: 5px;
+        font-size: 17px;
+        border: 2px double #4a3608;
+        outline: 1px solid #daa520;
+        outline-offset: 2px;
+        margin-top: 8px;
+        box-shadow: inset 0 1px 3px rgba(255, 248, 220, 0.5), inset 0 -2px 4px rgba(74, 54, 8, 0.3);
+        text-shadow: 0 1px 0 rgba(255, 248, 220, 0.4);
+        letter-spacing: 0.5px;
       }
       .footer-note {
         margin-top: 40px;
@@ -245,6 +276,7 @@ function generateCompleteHTML() {
             8 Craigour Terrace<br>
             Edinburgh, EH17 7PB<br>
             07931 810557<br>
+            <span class="vat-line">VAT: 524 6733 85</span><br>
             traderbrotherslimited@gmail.com
           </div>
         </div>
@@ -341,7 +373,7 @@ function generateCompleteHTML() {
         estimateSections.forEach(function(sectionName) {
             var sectionItems = items.filter(function(it) { return it.section === sectionName; });
             if (sectionItems.length > 0) {
-                bodyContent += '<tr style="background: #d4af37;"><td colspan="4" style="padding: 10px 12px; font-weight: bold; color: white; font-size: 13px;">' + sectionName + '</td></tr>';
+                bodyContent += '<tr><td colspan="4" style="padding: 10px 14px; font-weight: bold; color: #3a2a05; font-size: 14px; background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%); border: 1px solid #4a3608; text-shadow: 0 1px 0 rgba(255,248,220,0.4); letter-spacing: 0.5px; font-family: \'Times New Roman\', Times, serif;">&#10086; ' + sectionName + ' &#10086;</td></tr>';
                 renderPdfEstimateByCat(sectionItems);
             }
         });
@@ -384,7 +416,25 @@ function generateCompleteHTML() {
         <div class="thank-you">Thank you for your business</div>
       </div>
     `;
-    var importPayload = JSON.stringify({ v: 1, items: items, sections: estimateSections });
+    var importPayload = JSON.stringify({
+        v: 2,
+        source: 'estimate',
+        client: {
+            name:           document.getElementById('clientName').value || '',
+            phone:          document.getElementById('clientPhone').value || '',
+            email:          document.getElementById('clientEmail').value || '',
+            projectAddress: document.getElementById('projectAddress').value || '',
+            projectPostcode:document.getElementById('projectPostcode').value || '',
+            customerId:     document.getElementById('customerId').value || ''
+        },
+        terms: {
+            depositPercent: document.getElementById('depositPercent').value || '30',
+            removeVat:      !!document.getElementById('removeVat').checked,
+            customNotes:    document.getElementById('customNotes').value || ''
+        },
+        items: items,
+        sections: estimateSections
+    });
     var importEncoded = btoa(encodeURIComponent(importPayload));
     bodyContent += '<div style="font-size:4pt;color:#f5f5f5;font-family:Courier,monospace;line-height:4pt;word-break:break-all;margin:4px 0 0 0;padding:0;">OMEGA_IMPORT_V1_START' + importEncoded + 'OMEGA_IMPORT_V1_END</div></div>';
 

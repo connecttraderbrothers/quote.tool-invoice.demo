@@ -557,21 +557,23 @@ function previewQuote() {
     var previewHtml = `
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      .estimate-container-preview { font-family: Arial, sans-serif; background: white; padding: 30px; max-width: 100%; }
+      .estimate-container-preview { font-family: 'Times New Roman', Times, serif; background: white; padding: 30px; max-width: 100%; }
       .header-preview { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #333; }
       .company-info-preview { flex: 1; }
-      .company-name-preview { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333; }
-      .company-name-preview .highlight-preview { background: linear-gradient(135deg, #bc9c22, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+      .company-name-preview { font-size: 26px; font-weight: bold; margin-bottom: 10px; color: #333; letter-spacing: 0.5px; }
+      .company-name-preview .highlight-preview { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
       .company-details-preview { font-size: 11px; line-height: 1.6; color: #666; }
+      .company-details-preview .vat-line-preview { font-weight: bold; color: #8b6914; letter-spacing: 0.4px; }
       .logo-preview { width: 120px; height: auto; }
-      .estimate-banner-preview { background: linear-gradient(135deg, #bc9c22, #d4af37); padding: 15px 20px; margin-bottom: 25px; display: inline-block; font-weight: bold; font-size: 16px; color: white; }
+      .estimate-banner-preview { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%); padding: 14px 30px; margin-bottom: 25px; display: inline-block; font-weight: bold; font-size: 17px; color: #3a2a05; letter-spacing: 1.5px; text-transform: uppercase; border: 2px double #4a3608; outline: 1px solid #daa520; outline-offset: 2px; box-shadow: inset 0 1px 3px rgba(255,248,220,0.6), inset 0 -2px 4px rgba(74,54,8,0.3), 0 2px 5px rgba(0,0,0,0.2); text-shadow: 0 1px 0 rgba(255,248,220,0.5); font-family: 'Times New Roman', Times, serif; }
+      .estimate-banner-preview::before, .estimate-banner-preview::after { content: '\\2766'; margin: 0 10px; color: #4a3608; font-weight: normal; }
       .info-section-preview { display: flex; justify-content: space-between; margin-bottom: 30px; align-items: flex-start; gap: 100px; }
       .client-info-preview { flex: 0 0 auto; }
       .estimate-details-preview { flex: 0 0 auto; }
       .info-row-preview { font-size: 13px; line-height: 2; display: flex; align-items: center; }
       .info-label-preview { color: #333; font-weight: bold; margin-right: 10px; min-width: 80px; }
       .info-value-preview { color: #333; font-weight: normal; }
-      .expiry-date-preview { background: linear-gradient(135deg, #bc9c22, #d4af37); padding: 5px 10px; display: inline-block; color: white; font-weight: normal; }
+      .expiry-date-preview { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%); padding: 5px 12px; display: inline-block; color: #3a2a05; font-weight: bold; border: 1px solid #4a3608; box-shadow: inset 0 1px 2px rgba(255,248,220,0.5), inset 0 -1px 2px rgba(74,54,8,0.25); text-shadow: 0 1px 0 rgba(255,248,220,0.4); }
       .items-table-preview { width: 100%; border-collapse: collapse; margin: 30px 0; }
       .items-table-preview thead { background: #f5f5f5; }
       .items-table-preview th { padding: 12px; text-align: left; font-size: 12px; font-weight: bold; color: #333; border-bottom: 2px solid #ddd; }
@@ -580,7 +582,7 @@ function previewQuote() {
       .items-table-preview td:nth-child(2), .items-table-preview td:nth-child(3), .items-table-preview td:nth-child(4) { text-align: right; }
       .category-row { background: #f9f9f9; font-weight: bold; color: #333; }
       .category-row td { padding: 10px 12px; border-bottom: 2px solid #ddd; }
-      .notes-section-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 3px solid #bc9c22; }
+      .notes-section-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 4px double #8b6914; }
       .notes-section-preview h3 { font-size: 13px; margin-bottom: 10px; color: #333; }
       .notes-section-preview ol { margin-left: 20px; font-size: 12px; line-height: 1.8; color: #666; }
       .totals-section-preview { margin-top: 30px; display: flex; justify-content: flex-end; }
@@ -588,7 +590,7 @@ function previewQuote() {
       .total-row-preview { display: flex; justify-content: space-between; padding: 10px 15px; font-size: 13px; }
       .total-row-preview.subtotal { border-top: 1px solid #ddd; }
       .total-row-preview.vat { color: #666; }
-      .total-row-preview.final { background: linear-gradient(135deg, #bc9c22, #d4af37); color: white; font-weight: bold; font-size: 16px; border-top: 2px solid #333; margin-top: 5px; }
+      .total-row-preview.final { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%); color: #3a2a05; font-weight: bold; font-size: 17px; border: 2px double #4a3608; outline: 1px solid #daa520; outline-offset: 2px; margin-top: 8px; box-shadow: inset 0 1px 3px rgba(255,248,220,0.5), inset 0 -2px 4px rgba(74,54,8,0.3); text-shadow: 0 1px 0 rgba(255,248,220,0.4); letter-spacing: 0.5px; }
       .footer-note-preview { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; font-size: 11px; color: #666; font-style: italic; }
       .thank-you-preview { margin-top: 15px; font-weight: bold; color: #333; font-size: 12px; }
     </style>
@@ -599,7 +601,8 @@ function previewQuote() {
           <div class="company-details-preview">
             8 Craigour Terrace<br>
             Edinburgh, EH17 7PB<br>
-            07979309957<br>
+            07931 810557<br>
+            <span class="vat-line-preview">VAT: 524 6733 85</span><br>
             traderbrotherslimited@gmail.com
           </div>
         </div>
@@ -696,7 +699,7 @@ function previewQuote() {
         estimateSections.forEach(function(sectionName) {
             var sectionItems = items.filter(function(it) { return it.section === sectionName; });
             if (sectionItems.length > 0) {
-                previewHtml += '<tr style="background: #d4af37;"><td colspan="4" style="padding: 10px 12px; font-weight: bold; color: white; font-size: 13px;">' + sectionName + '</td></tr>';
+                previewHtml += '<tr><td colspan="4" style="padding: 10px 14px; font-weight: bold; color: #3a2a05; font-size: 14px; background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%); border: 1px solid #4a3608; text-shadow: 0 1px 0 rgba(255,248,220,0.4); letter-spacing: 0.5px; font-family: \'Times New Roman\', Times, serif;">&#10086; ' + sectionName + ' &#10086;</td></tr>';
                 renderPreviewEstimateByCat(sectionItems);
             }
         });
@@ -960,8 +963,24 @@ function applyEstimateImportData(data) {
         alert('The imported PDF has no line items.');
         return;
     }
-    if (!confirm('Import ' + data.items.length + ' item(s)' + (data.sections && data.sections.length ? ' and ' + data.sections.length + ' section(s)' : '') + ' from this estimate?\n\nThis will replace all current items and sections.')) {
+    if (!confirm('Import ' + data.items.length + ' item(s)' + (data.sections && data.sections.length ? ' and ' + data.sections.length + ' section(s)' : '') + ' from this estimate?\n\nThis will replace all current items, sections, client info, and notes.')) {
         return;
+    }
+    // Restore client info (v2 payload)
+    if (data.client) {
+        function setVal(id, val) { var el = document.getElementById(id); if (el) el.value = val || ''; }
+        setVal('clientName',       data.client.name);
+        setVal('clientPhone',      data.client.phone);
+        setVal('clientEmail',      data.client.email);
+        setVal('projectAddress',   data.client.projectAddress);
+        setVal('projectPostcode',  data.client.projectPostcode);
+        setVal('customerId',       data.client.customerId);
+    }
+    // Restore terms (v2 payload)
+    if (data.terms) {
+        var dp = document.getElementById('depositPercent'); if (dp && data.terms.depositPercent) dp.value = data.terms.depositPercent;
+        var rv = document.getElementById('removeVat');      if (rv) rv.checked = !!data.terms.removeVat;
+        var cn = document.getElementById('customNotes');    if (cn) cn.value = data.terms.customNotes || '';
     }
     // Replace sections
     estimateSections = [];
@@ -974,7 +993,7 @@ function applyEstimateImportData(data) {
     activeEstimateSection = estimateSections.length > 0 ? estimateSections[0] : null;
     renderEstimateSections();
     updateEstimateActiveSectionIndicator();
-    // Replace items
+    // Replace items — preserves categories including custom ones (any string)
     items = [];
     for (var i = 0; i < data.items.length; i++) {
         var src = data.items[i];

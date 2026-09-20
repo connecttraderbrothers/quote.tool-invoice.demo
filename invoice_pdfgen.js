@@ -44,21 +44,23 @@ function previewInvoice() {
     var previewHtml = `
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      .invoice-container-preview { font-family: Arial, sans-serif; background: white; padding: 30px; max-width: 100%; }
+      .invoice-container-preview { font-family: 'Times New Roman', Times, serif; background: white; padding: 30px; max-width: 100%; }
       .header-preview { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #333; }
       .company-info-preview { flex: 1; }
-      .company-name-preview { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333; }
-      .company-name-preview .highlight-preview { background: linear-gradient(135deg, #bc9c22, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+      .company-name-preview { font-size: 26px; font-weight: bold; margin-bottom: 10px; color: #333; letter-spacing: 0.5px; }
+      .company-name-preview .highlight-preview { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
       .company-details-preview { font-size: 11px; line-height: 1.6; color: #666; }
+      .company-details-preview .vat-line-preview { font-weight: bold; color: #8b6914; letter-spacing: 0.4px; }
       .logo-preview { width: 120px; height: auto; }
-      .invoice-banner-preview { background: linear-gradient(135deg, #bc9c22, #d4af37); padding: 15px 20px; margin-bottom: 25px; display: inline-block; font-weight: bold; font-size: 16px; color: white; }
+      .invoice-banner-preview { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%); padding: 14px 30px; margin-bottom: 25px; display: inline-block; font-weight: bold; font-size: 17px; color: #3a2a05; letter-spacing: 1.5px; text-transform: uppercase; border: 2px double #4a3608; outline: 1px solid #daa520; outline-offset: 2px; box-shadow: inset 0 1px 3px rgba(255,248,220,0.6), inset 0 -2px 4px rgba(74,54,8,0.3), 0 2px 5px rgba(0,0,0,0.2); text-shadow: 0 1px 0 rgba(255,248,220,0.5); font-family: 'Times New Roman', Times, serif; }
+      .invoice-banner-preview::before, .invoice-banner-preview::after { content: '\\2766'; margin: 0 10px; color: #4a3608; font-weight: normal; }
       .info-section-preview { display: flex; justify-content: space-between; margin-bottom: 30px; align-items: flex-start; gap: 100px; }
       .client-info-preview { flex: 0 0 auto; }
       .invoice-details-preview { flex: 0 0 auto; }
       .info-row-preview { font-size: 13px; line-height: 2; display: flex; align-items: center; }
       .info-label-preview { color: #333; font-weight: bold; margin-right: 10px; min-width: 80px; }
       .info-value-preview { color: #333; font-weight: normal; }
-      .due-date-preview { background: linear-gradient(135deg, #bc9c22, #d4af37); padding: 5px 10px; display: inline-block; color: white; font-weight: normal; }
+      .due-date-preview { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%); padding: 5px 12px; display: inline-block; color: #3a2a05; font-weight: bold; border: 1px solid #4a3608; box-shadow: inset 0 1px 2px rgba(255,248,220,0.5), inset 0 -1px 2px rgba(74,54,8,0.25); text-shadow: 0 1px 0 rgba(255,248,220,0.4); }
       .items-table-preview { width: 100%; border-collapse: collapse; margin: 30px 0; }
       .items-table-preview thead { background: #f5f5f5; }
       .items-table-preview th { padding: 12px; text-align: left; font-size: 12px; font-weight: bold; color: #333; border-bottom: 2px solid #ddd; }
@@ -67,10 +69,10 @@ function previewInvoice() {
       .items-table-preview td:nth-child(2), .items-table-preview td:nth-child(3), .items-table-preview td:nth-child(4) { text-align: right; }
       .category-row { background: #f9f9f9; font-weight: bold; color: #333; }
       .category-row td { padding: 10px 12px; border-bottom: 2px solid #ddd; }
-      .payment-terms-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 3px solid #bc9c22; }
+      .payment-terms-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 4px double #8b6914; }
       .payment-terms-preview h3 { font-size: 13px; margin-bottom: 10px; color: #333; }
       .payment-terms-preview p { font-size: 12px; line-height: 1.8; color: #666; margin-bottom: 8px; }
-      .bank-details-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 3px solid #bc9c22; }
+      .bank-details-preview { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 4px double #8b6914; }
       .bank-details-preview h3 { font-size: 13px; margin-bottom: 10px; color: #333; }
       .bank-details-preview p { font-size: 12px; line-height: 1.8; color: #666; margin: 5px 0; }
       .bottom-section-preview { display: flex; gap: 30px; margin-top: 30px; align-items: flex-start; }
@@ -79,7 +81,7 @@ function previewInvoice() {
       .total-row-preview { display: flex; justify-content: space-between; padding: 10px 15px; font-size: 13px; }
       .total-row-preview.subtotal { border-top: 1px solid #ddd; }
       .total-row-preview.vat { color: #666; }
-      .total-row-preview.final { background: linear-gradient(135deg, #bc9c22, #d4af37); color: white; font-weight: bold; font-size: 16px; border-top: 2px solid #333; margin-top: 5px; }
+      .total-row-preview.final { background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%); color: #3a2a05; font-weight: bold; font-size: 17px; border: 2px double #4a3608; outline: 1px solid #daa520; outline-offset: 2px; margin-top: 8px; box-shadow: inset 0 1px 3px rgba(255,248,220,0.5), inset 0 -2px 4px rgba(74,54,8,0.3); text-shadow: 0 1px 0 rgba(255,248,220,0.4); letter-spacing: 0.5px; }
       .footer-note-preview { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; font-size: 11px; color: #666; font-style: italic; }
       .thank-you-preview { margin-top: 15px; font-weight: bold; color: #333; font-size: 12px; }
     </style>
@@ -90,7 +92,8 @@ function previewInvoice() {
           <div class="company-details-preview">
             8 Craigour Terrace<br>
             Edinburgh, EH17 7PB<br>
-            07979309957<br>
+            07931 810557<br>
+            <span class="vat-line-preview">VAT: 524 6733 85</span><br>
             traderbrotherslimited@gmail.com
           </div>
         </div>
@@ -189,7 +192,7 @@ function previewInvoice() {
         invoiceSections.forEach(function(sectionName) {
             var sectionItems = invoiceItems.filter(function(it) { return it.section === sectionName; });
             if (sectionItems.length > 0) {
-                previewHtml += '<tr style="background: #d4af37;"><td colspan="4" style="padding: 10px 12px; font-weight: bold; color: white; font-size: 13px;">' + sectionName + '</td></tr>';
+                previewHtml += '<tr><td colspan="4" style="padding: 10px 14px; font-weight: bold; color: #3a2a05; font-size: 14px; background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%); border: 1px solid #4a3608; text-shadow: 0 1px 0 rgba(255,248,220,0.4); letter-spacing: 0.5px; font-family: \'Times New Roman\', Times, serif;">&#10086; ' + sectionName + ' &#10086;</td></tr>';
                 renderPreviewInvoiceByCat(sectionItems);
             }
         });
@@ -419,7 +422,7 @@ function generateInvoiceHTML() {
         box-sizing: border-box;
       }
       body {
-        font-family: Arial, sans-serif;
+        font-family: 'Times New Roman', Times, serif;
         background: #f5f5f5;
         padding: 20px;
       }
@@ -429,6 +432,7 @@ function generateInvoiceHTML() {
         background: white;
         padding: 40px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        font-family: 'Times New Roman', Times, serif;
       }
       .header {
         display: flex;
@@ -442,13 +446,14 @@ function generateInvoiceHTML() {
         flex: 1;
       }
       .company-name {
-        font-size: 24px;
+        font-size: 26px;
         font-weight: bold;
         margin-bottom: 10px;
         color: #333;
+        letter-spacing: 0.5px;
       }
       .company-name .highlight {
-        background: linear-gradient(135deg, #bc9c22, #d4af37);
+        background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -457,6 +462,11 @@ function generateInvoiceHTML() {
         font-size: 11px;
         line-height: 1.6;
         color: #666;
+      }
+      .company-details .vat-line {
+        font-weight: bold;
+        color: #8b6914;
+        letter-spacing: 0.4px;
       }
       .logo {
         width: 120px;
@@ -469,12 +479,27 @@ function generateInvoiceHTML() {
         margin-bottom: 25px;
       }
       .invoice-banner {
-        background: linear-gradient(135deg, #bc9c22, #d4af37);
-        padding: 15px 20px;
+        background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%);
+        padding: 14px 30px;
         display: inline-block;
         font-weight: bold;
-        font-size: 16px;
-        color: white;
+        font-size: 17px;
+        color: #3a2a05;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        border: 2px double #4a3608;
+        outline: 1px solid #daa520;
+        outline-offset: 2px;
+        box-shadow: inset 0 1px 3px rgba(255, 248, 220, 0.6), inset 0 -2px 4px rgba(74, 54, 8, 0.3), 0 2px 5px rgba(0, 0, 0, 0.2);
+        text-shadow: 0 1px 0 rgba(255, 248, 220, 0.5);
+        font-family: 'Times New Roman', Times, serif;
+      }
+      .invoice-banner::before,
+      .invoice-banner::after {
+        content: '\\2766';
+        margin: 0 10px;
+        color: #4a3608;
+        font-weight: normal;
       }
       .status-badge {
         background: ${statusColor};
@@ -514,11 +539,14 @@ function generateInvoiceHTML() {
         font-weight: normal;
       }
       .due-date {
-        background: linear-gradient(135deg, #bc9c22, #d4af37);
-        padding: 5px 10px;
+        background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%);
+        padding: 5px 12px;
         display: inline-block;
-        color: white;
-        font-weight: normal;
+        color: #3a2a05;
+        font-weight: bold;
+        border: 1px solid #4a3608;
+        box-shadow: inset 0 1px 2px rgba(255, 248, 220, 0.5), inset 0 -1px 2px rgba(74, 54, 8, 0.25);
+        text-shadow: 0 1px 0 rgba(255, 248, 220, 0.4);
       }
       .items-table {
         width: 100%;
@@ -566,7 +594,7 @@ function generateInvoiceHTML() {
         margin: 30px 0;
         padding: 20px;
         background: #f9f9f9;
-        border-left: 3px solid #bc9c22;
+        border-left: 4px double #8b6914;
       }
       .payment-terms h3 {
         font-size: 13px;
@@ -583,7 +611,7 @@ function generateInvoiceHTML() {
         margin: 30px 0;
         padding: 20px;
         background: #f9f9f9;
-        border-left: 3px solid #bc9c22;
+        border-left: 4px double #8b6914;
         flex: 1;
       }
       .bank-details h3 {
@@ -625,12 +653,17 @@ function generateInvoiceHTML() {
         color: #666;
       }
       .total-row.final {
-        background: linear-gradient(135deg, #bc9c22, #d4af37);
-        color: white;
+        background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%);
+        color: #3a2a05;
         font-weight: bold;
-        font-size: 16px;
-        border-top: 2px solid #333;
-        margin-top: 5px;
+        font-size: 17px;
+        border: 2px double #4a3608;
+        outline: 1px solid #daa520;
+        outline-offset: 2px;
+        margin-top: 8px;
+        box-shadow: inset 0 1px 3px rgba(255, 248, 220, 0.5), inset 0 -2px 4px rgba(74, 54, 8, 0.3);
+        text-shadow: 0 1px 0 rgba(255, 248, 220, 0.4);
+        letter-spacing: 0.5px;
       }
       .footer-note {
         margin-top: 40px;
@@ -669,6 +702,7 @@ function generateInvoiceHTML() {
             8 Craigour Terrace<br>
             Edinburgh, EH17 7PB<br>
             07931 810557<br>
+            <span class="vat-line">VAT: 524 6733 85</span><br>
             traderbrotherslimited@gmail.com
           </div>
         </div>
@@ -767,7 +801,7 @@ function generateInvoiceHTML() {
         invoiceSections.forEach(function(sectionName) {
             var sectionItems = invoiceItems.filter(function(it) { return it.section === sectionName; });
             if (sectionItems.length > 0) {
-                bodyContent += '<tr style="background: #d4af37;"><td colspan="4" style="padding: 10px 12px; font-weight: bold; color: white; font-size: 13px;">' + sectionName + '</td></tr>';
+                bodyContent += '<tr><td colspan="4" style="padding: 10px 14px; font-weight: bold; color: #3a2a05; font-size: 14px; background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%); border: 1px solid #4a3608; text-shadow: 0 1px 0 rgba(255,248,220,0.4); letter-spacing: 0.5px; font-family: \'Times New Roman\', Times, serif;">&#10086; ' + sectionName + ' &#10086;</td></tr>';
                 renderPdfInvoiceByCat(sectionItems);
             }
         });
@@ -815,10 +849,33 @@ function generateInvoiceHTML() {
 
       <div class="footer-note">
         If you have any questions about this invoice, please contact<br>
-        us at traderbrotherslimited@gmail.com, or 07931 810557 
+        us at traderbrotherslimited@gmail.com, or 07931 810557
         <div class="thank-you">Thank you for your business</div>
       </div>
-    </div>`;
+    `;
+    var invImportPayload = JSON.stringify({
+        v: 2,
+        source: 'invoice',
+        client: {
+            name:           document.getElementById('invoiceClientName').value || '',
+            phone:          document.getElementById('invoiceClientPhone').value || '',
+            email:          document.getElementById('invoiceClientEmail').value || '',
+            projectAddress: document.getElementById('invoiceProjectAddress').value || '',
+            projectPostcode:document.getElementById('invoiceProjectPostcode').value || '',
+            customerId:     document.getElementById('invoiceCustomerId').value || ''
+        },
+        terms: {
+            paymentDueDays: document.getElementById('paymentDueDays').value || '30',
+            paymentStatus:  document.getElementById('paymentStatus').value || 'unpaid',
+            deduction:      parseFloat(document.getElementById('invoiceDeduction').value) || 0,
+            removeVat:      !!document.getElementById('invoiceRemoveVat').checked,
+            customNotes:    document.getElementById('invoiceCustomNotes').value || ''
+        },
+        items: invoiceItems,
+        sections: invoiceSections
+    });
+    var invImportEncoded = btoa(encodeURIComponent(invImportPayload));
+    bodyContent += '<div style="font-size:4pt;color:#f5f5f5;font-family:Courier,monospace;line-height:4pt;word-break:break-all;margin:4px 0 0 0;padding:0;">OMEGA_IMPORT_V1_START' + invImportEncoded + 'OMEGA_IMPORT_V1_END</div></div>';
 
     return `<!DOCTYPE html>
 <html lang="en">
