@@ -57,18 +57,16 @@ function generateCompleteHTML() {
         flex: 1;
       }
       .company-name {
-        font-size: 26px;
+        font-size: 24px;
         font-weight: bold;
         margin-bottom: 10px;
         color: #333;
-        letter-spacing: 0.5px;
       }
       .company-name .highlight {
-        background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%);
+        background: linear-gradient(135deg, #b8860b, #daa520);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        text-shadow: 0 1px 0 rgba(255, 242, 184, 0.3);
       }
       .company-details {
         font-size: 11px;
@@ -76,37 +74,22 @@ function generateCompleteHTML() {
         color: #666;
       }
       .company-details .vat-line {
-        font-weight: bold;
-        color: #8b6914;
-        letter-spacing: 0.4px;
+        color: #b8860b;
+        font-weight: 600;
       }
       .logo {
         width: 120px;
         height: auto;
       }
       .estimate-banner {
-        background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%);
-        padding: 14px 30px;
+        background: linear-gradient(135deg, #b8860b, #daa520);
+        padding: 12px 24px;
         margin-bottom: 25px;
         display: inline-block;
-        font-weight: bold;
-        font-size: 17px;
-        color: #3a2a05;
-        font-family: 'Times New Roman', Times, serif;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        border: 2px double #4a3608;
-        outline: 1px solid #daa520;
-        outline-offset: 2px;
-        box-shadow: inset 0 1px 3px rgba(255, 248, 220, 0.6), inset 0 -2px 4px rgba(74, 54, 8, 0.3), 0 2px 5px rgba(0, 0, 0, 0.2);
-        text-shadow: 0 1px 0 rgba(255, 248, 220, 0.5);
-      }
-      .estimate-banner::before,
-      .estimate-banner::after {
-        content: '\\2766';
-        margin: 0 10px;
-        color: #4a3608;
-        font-weight: normal;
+        font-weight: 600;
+        font-size: 15px;
+        color: white;
+        border-radius: 4px;
       }
       .info-section {
         display: flex;
@@ -138,14 +121,12 @@ function generateCompleteHTML() {
         font-weight: normal;
       }
       .expiry-date {
-        background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%);
-        padding: 5px 12px;
+        background: linear-gradient(135deg, #b8860b, #daa520);
+        padding: 4px 10px;
         display: inline-block;
-        color: #3a2a05;
-        font-weight: bold;
-        border: 1px solid #4a3608;
-        box-shadow: inset 0 1px 2px rgba(255, 248, 220, 0.5), inset 0 -1px 2px rgba(74, 54, 8, 0.25);
-        text-shadow: 0 1px 0 rgba(255, 248, 220, 0.4);
+        color: white;
+        font-weight: 500;
+        border-radius: 3px;
       }
       .items-table {
         width: 100%;
@@ -193,7 +174,7 @@ function generateCompleteHTML() {
         margin: 30px 0;
         padding: 20px;
         background: #f9f9f9;
-        border-left: 4px double #8b6914;
+        border-left: 3px solid #b8860b;
       }
       .notes-section h3 {
         font-size: 13px;
@@ -227,17 +208,13 @@ function generateCompleteHTML() {
         color: #666;
       }
       .total-row.final {
-        background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 15%, #daa520 35%, #f4c430 48%, #fff2b8 52%, #f4c430 62%, #daa520 78%, #a67c1e 90%, #6b4f0f 100%);
-        color: #3a2a05;
-        font-weight: bold;
-        font-size: 17px;
-        border: 2px double #4a3608;
-        outline: 1px solid #daa520;
-        outline-offset: 2px;
-        margin-top: 8px;
-        box-shadow: inset 0 1px 3px rgba(255, 248, 220, 0.5), inset 0 -2px 4px rgba(74, 54, 8, 0.3);
-        text-shadow: 0 1px 0 rgba(255, 248, 220, 0.4);
-        letter-spacing: 0.5px;
+        background: linear-gradient(135deg, #b8860b, #daa520);
+        color: white;
+        font-weight: 600;
+        font-size: 15px;
+        border-top: 2px solid #333;
+        margin-top: 5px;
+        border-radius: 3px;
       }
       .footer-note {
         margin-top: 40px;
@@ -373,7 +350,7 @@ function generateCompleteHTML() {
         estimateSections.forEach(function(sectionName) {
             var sectionItems = items.filter(function(it) { return it.section === sectionName; });
             if (sectionItems.length > 0) {
-                bodyContent += '<tr><td colspan="4" style="padding: 10px 14px; font-weight: bold; color: #3a2a05; font-size: 14px; background: linear-gradient(135deg, #6b4f0f 0%, #a67c1e 20%, #daa520 40%, #f4c430 50%, #daa520 60%, #a67c1e 80%, #6b4f0f 100%); border: 1px solid #4a3608; text-shadow: 0 1px 0 rgba(255,248,220,0.4); letter-spacing: 0.5px; font-family: \'Times New Roman\', Times, serif;">&#10086; ' + sectionName + ' &#10086;</td></tr>';
+                bodyContent += '<tr><td colspan="4" style="padding: 10px 14px; font-weight: 600; color: white; font-size: 13px; background: linear-gradient(135deg, #b8860b, #daa520);">' + sectionName + '</td></tr>';
                 renderPdfEstimateByCat(sectionItems);
             }
         });
