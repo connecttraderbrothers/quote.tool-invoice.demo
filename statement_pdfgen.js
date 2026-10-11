@@ -137,12 +137,8 @@ function previewStatement() {
     if (statementSections.length > 0) {
         // Helper to render a flat item list grouped by category
         function renderPreviewItemsByCat(itemsArr) {
-            var sorted = sortStatementItemsByCategory(itemsArr);
-            var grouped = groupStatementItemsByCategory(sorted);
-            var cats = [];
-            statementCategoryOrder.forEach(function(c) { if (grouped[c]) cats.push(c); });
-            Object.keys(grouped).forEach(function(c) { if (cats.indexOf(c) === -1) cats.push(c); });
-            cats.forEach(function(c) {
+            var grouped = groupStatementItemsByCategory(itemsArr);
+            getStatementOrderedCategories(itemsArr).forEach(function(c) {
                 previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + c + '</strong></td></tr>';
                 grouped[c].forEach(function(item) {
                     previewHtml += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
@@ -161,19 +157,13 @@ function previewStatement() {
             }
         });
     } else {
-        // No sections — original category-grouped rendering
-        var sortedItems = sortStatementItemsByCategory(statementItems);
-        var groupedItems = groupStatementItemsByCategory(sortedItems);
-        var allCategories = [];
-        statementCategoryOrder.forEach(function(cat) { if (groupedItems[cat]) allCategories.push(cat); });
-        Object.keys(groupedItems).forEach(function(cat) { if (allCategories.indexOf(cat) === -1) allCategories.push(cat); });
-        allCategories.forEach(function(category) {
-            if (groupedItems[category]) {
-                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
-                groupedItems[category].forEach(function(item) {
-                    previewHtml += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
-                });
-            }
+        // No sections — category-grouped rendering
+        var groupedItems = groupStatementItemsByCategory(statementItems);
+        getStatementOrderedCategories(statementItems).forEach(function(category) {
+            previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
+            groupedItems[category].forEach(function(item) {
+                previewHtml += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+            });
         });
     }
 
@@ -324,12 +314,8 @@ function generateStatementHTML() {
     // Render items — section-grouped when sections exist, else category-grouped
     if (statementSections.length > 0) {
         function renderPdfItemsByCat(itemsArr) {
-            var sorted = sortStatementItemsByCategory(itemsArr);
-            var grouped = groupStatementItemsByCategory(sorted);
-            var cats = [];
-            statementCategoryOrder.forEach(function(c) { if (grouped[c]) cats.push(c); });
-            Object.keys(grouped).forEach(function(c) { if (cats.indexOf(c) === -1) cats.push(c); });
-            cats.forEach(function(c) {
+            var grouped = groupStatementItemsByCategory(itemsArr);
+            getStatementOrderedCategories(itemsArr).forEach(function(c) {
                 bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + c + '</strong></td></tr>';
                 grouped[c].forEach(function(item) {
                     bodyContent += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
@@ -346,18 +332,12 @@ function generateStatementHTML() {
             }
         });
     } else {
-        var sortedItems = sortStatementItemsByCategory(statementItems);
-        var groupedItems = groupStatementItemsByCategory(sortedItems);
-        var allCategories = [];
-        statementCategoryOrder.forEach(function(cat) { if (groupedItems[cat]) allCategories.push(cat); });
-        Object.keys(groupedItems).forEach(function(cat) { if (allCategories.indexOf(cat) === -1) allCategories.push(cat); });
-        allCategories.forEach(function(category) {
-            if (groupedItems[category]) {
-                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
-                groupedItems[category].forEach(function(item) {
-                    bodyContent += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
-                });
-            }
+        var groupedItems = groupStatementItemsByCategory(statementItems);
+        getStatementOrderedCategories(statementItems).forEach(function(category) {
+            bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
+            groupedItems[category].forEach(function(item) {
+                bodyContent += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
+            });
         });
     }
 

@@ -160,26 +160,12 @@ function previewInvoice() {
 
     // Render items - section-aware if sections exist, else grouped by category
     function renderPreviewInvoiceByCat(itemsArr) {
-        var sorted = sortInvoiceItemsByCategory(itemsArr);
-        var grouped = groupInvoiceItemsByCategory(sorted);
-        categoryOrder.forEach(function(cat) {
-            if (grouped[cat]) {
-                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + cat + '</strong></td></tr>';
-                grouped[cat].forEach(function(it) {
-                    previewHtml += '<tr><td>' + it.description + '</td><td>' + it.quantity + '</td><td>£' + it.unitPrice.toFixed(2) + '</td><td>£' + it.lineTotal.toFixed(2) + '</td></tr>';
-                });
-            }
-        });
-        var seenCustom = {};
-        itemsArr.forEach(function(it) {
-            if (categoryOrder.indexOf(it.category) === -1 && !seenCustom[it.category]) {
-                seenCustom[it.category] = true;
-                var catItems = itemsArr.filter(function(x) { return x.category === it.category; });
-                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + it.category + '</strong></td></tr>';
-                catItems.forEach(function(x) {
-                    previewHtml += '<tr><td>' + x.description + '</td><td>' + x.quantity + '</td><td>£' + x.unitPrice.toFixed(2) + '</td><td>£' + x.lineTotal.toFixed(2) + '</td></tr>';
-                });
-            }
+        var grouped = groupInvoiceItemsByCategory(itemsArr);
+        getInvoiceOrderedCategories(itemsArr).forEach(function(cat) {
+            previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + cat + '</strong></td></tr>';
+            grouped[cat].forEach(function(it) {
+                previewHtml += '<tr><td>' + it.description + '</td><td>' + it.quantity + '</td><td>£' + it.unitPrice.toFixed(2) + '</td><td>£' + it.lineTotal.toFixed(2) + '</td></tr>';
+            });
         });
     }
 
@@ -748,26 +734,12 @@ function generateInvoiceHTML() {
 
     // Render items - section-aware if sections exist, else grouped by category
     function renderPdfInvoiceByCat(itemsArr) {
-        var sorted = sortInvoiceItemsByCategory(itemsArr);
-        var grouped = groupInvoiceItemsByCategory(sorted);
-        categoryOrder.forEach(function(cat) {
-            if (grouped[cat]) {
-                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + cat + '</strong></td></tr>';
-                grouped[cat].forEach(function(it) {
-                    bodyContent += '<tr><td>' + it.description + '</td><td>' + it.quantity + '</td><td>£' + it.unitPrice.toFixed(2) + '</td><td>£' + it.lineTotal.toFixed(2) + '</td></tr>';
-                });
-            }
-        });
-        var seenCustom = {};
-        itemsArr.forEach(function(it) {
-            if (categoryOrder.indexOf(it.category) === -1 && !seenCustom[it.category]) {
-                seenCustom[it.category] = true;
-                var catItems = itemsArr.filter(function(x) { return x.category === it.category; });
-                bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + it.category + '</strong></td></tr>';
-                catItems.forEach(function(x) {
-                    bodyContent += '<tr><td>' + x.description + '</td><td>' + x.quantity + '</td><td>£' + x.unitPrice.toFixed(2) + '</td><td>£' + x.lineTotal.toFixed(2) + '</td></tr>';
-                });
-            }
+        var grouped = groupInvoiceItemsByCategory(itemsArr);
+        getInvoiceOrderedCategories(itemsArr).forEach(function(cat) {
+            bodyContent += '<tr class="category-row"><td colspan="4"><strong>' + cat + '</strong></td></tr>';
+            grouped[cat].forEach(function(it) {
+                bodyContent += '<tr><td>' + it.description + '</td><td>' + it.quantity + '</td><td>£' + it.unitPrice.toFixed(2) + '</td><td>£' + it.lineTotal.toFixed(2) + '</td></tr>';
+            });
         });
     }
 
