@@ -398,16 +398,44 @@ function repositionItem(index) {
     updateQuoteTable();
 }
 
+// Build the category display order for a set of items.
+// Standard categories keep their categoryOrder position. A custom category is
+// anchored to the standard category it was placed after, so it stays where the
+// user put it instead of dropping to the bottom of the document.
+function getOrderedCategories(itemsArray) {
+    var meta = [];
+    var seen = {};
+    var anchor = -1;
+    for (var i = 0; i < itemsArray.length; i++) {
+        var name = itemsArray[i].category;
+        var standardIndex = categoryOrder.indexOf(name);
+        if (standardIndex !== -1) { anchor = standardIndex; }
+        if (!Object.prototype.hasOwnProperty.call(seen, name)) {
+            seen[name] = true;
+            meta.push({
+                name: name,
+                isCustom: standardIndex === -1,
+                anchor: standardIndex !== -1 ? standardIndex : anchor,
+                placed: i
+            });
+        }
+    }
+    meta.sort(function(a, b) {
+        if (a.anchor !== b.anchor) { return a.anchor - b.anchor; }
+        // Same anchor: the standard category heads the group, customs follow in placement order
+        if (a.isCustom !== b.isCustom) { return a.isCustom ? 1 : -1; }
+        return a.placed - b.placed;
+    });
+    var names = [];
+    for (var j = 0; j < meta.length; j++) { names.push(meta[j].name); }
+    return names;
+}
+
 // Helper function to sort items by category order
 function sortItemsByCategory(itemsArray) {
+    var order = getOrderedCategories(itemsArray);
     return itemsArray.slice().sort(function(a, b) {
-        var indexA = categoryOrder.indexOf(a.category);
-        var indexB = categoryOrder.indexOf(b.category);
-        
-        if (indexA === -1) indexA = 999;
-        if (indexB === -1) indexB = 999;
-        
-        return indexA - indexB;
+        return order.indexOf(a.category) - order.indexOf(b.category);
     });
 }
 
@@ -664,27 +692,12 @@ function previewQuote() {
 
     // Render items - section-aware if sections exist, else grouped by category
     function renderPreviewEstimateByCat(itemsArr) {
-        var sorted = sortItemsByCategory(itemsArr);
-        var grouped = groupItemsByCategory(sorted);
-        categoryOrder.forEach(function(cat) {
-            if (grouped[cat]) {
-                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + cat + '</strong></td></tr>';
-                grouped[cat].forEach(function(it) {
-                    previewHtml += '<tr><td>' + it.description + '</td><td>' + it.quantity + '</td><td>£' + it.unitPrice.toFixed(2) + '</td><td>£' + it.lineTotal.toFixed(2) + '</td></tr>';
-                });
-            }
-        });
-        // Custom categories not in categoryOrder
-        var seenCustom = {};
-        itemsArr.forEach(function(it) {
-            if (categoryOrder.indexOf(it.category) === -1 && !seenCustom[it.category]) {
-                seenCustom[it.category] = true;
-                var catItems = itemsArr.filter(function(x) { return x.category === it.category; });
-                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + it.category + '</strong></td></tr>';
-                catItems.forEach(function(x) {
-                    previewHtml += '<tr><td>' + x.description + '</td><td>' + x.quantity + '</td><td>£' + x.unitPrice.toFixed(2) + '</td><td>£' + x.lineTotal.toFixed(2) + '</td></tr>';
-                });
-            }
+        var grouped = groupItemsByCategory(itemsArr);
+        getOrderedCategories(itemsArr).forEach(function(cat) {
+            previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + cat + '</strong></td></tr>';
+            grouped[cat].forEach(function(it) {
+                previewHtml += '<tr><td>' + it.description + '</td><td>' + it.quantity + '</td><td>£' + it.unitPrice.toFixed(2) + '</td><td>£' + it.lineTotal.toFixed(2) + '</td></tr>';
+            });
         });
     }
 
@@ -701,16 +714,7 @@ function previewQuote() {
             }
         });
     } else {
-        var sortedItems = sortItemsByCategory(items);
-        var groupedItems = groupItemsByCategory(sortedItems);
-        categoryOrder.forEach(function(category) {
-            if (groupedItems[category]) {
-                previewHtml += '<tr class="category-row"><td colspan="4"><strong>' + category + '</strong></td></tr>';
-                groupedItems[category].forEach(function(item) {
-                    previewHtml += '<tr><td>' + item.description + '</td><td>' + item.quantity + '</td><td>£' + item.unitPrice.toFixed(2) + '</td><td>£' + item.lineTotal.toFixed(2) + '</td></tr>';
-                });
-            }
-        });
+        renderPreviewEstimateByCat(items);
     }
 
     previewHtml += `

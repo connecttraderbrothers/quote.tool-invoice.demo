@@ -507,17 +507,44 @@ function repositionStatementItem(index) {
     updateStatementTable();
 }
 
+// Build the category display order for a set of items.
+// Standard categories keep their statementCategoryOrder position. A custom
+// category is anchored to the standard category it was placed after, so it stays
+// where the user put it instead of dropping to the bottom of the document.
+function getStatementOrderedCategories(itemsArray) {
+    var meta = [];
+    var seen = {};
+    var anchor = -1;
+    for (var i = 0; i < itemsArray.length; i++) {
+        var name = itemsArray[i].category;
+        var standardIndex = statementCategoryOrder.indexOf(name);
+        if (standardIndex !== -1) { anchor = standardIndex; }
+        if (!Object.prototype.hasOwnProperty.call(seen, name)) {
+            seen[name] = true;
+            meta.push({
+                name: name,
+                isCustom: standardIndex === -1,
+                anchor: standardIndex !== -1 ? standardIndex : anchor,
+                placed: i
+            });
+        }
+    }
+    meta.sort(function(a, b) {
+        if (a.anchor !== b.anchor) { return a.anchor - b.anchor; }
+        // Same anchor: the standard category heads the group, customs follow in placement order
+        if (a.isCustom !== b.isCustom) { return a.isCustom ? 1 : -1; }
+        return a.placed - b.placed;
+    });
+    var names = [];
+    for (var j = 0; j < meta.length; j++) { names.push(meta[j].name); }
+    return names;
+}
+
 // Helper function to sort items by category order
 function sortStatementItemsByCategory(itemsArray) {
+    var order = getStatementOrderedCategories(itemsArray);
     return itemsArray.slice().sort(function(a, b) {
-        var indexA = statementCategoryOrder.indexOf(a.category);
-        var indexB = statementCategoryOrder.indexOf(b.category);
-
-        // Custom categories go after all standard ones
-        if (indexA === -1) indexA = 999;
-        if (indexB === -1) indexB = 999;
-
-        return indexA - indexB;
+        return order.indexOf(a.category) - order.indexOf(b.category);
     });
 }
 
