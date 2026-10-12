@@ -93,6 +93,7 @@ function previewInvoice() {
             Edinburgh, EH17 7PB<br>
             07931 810557<br>
             <span class="vat-line-preview">VAT: 524 6733 85</span><br>
+            Company number: SC815790<br>
             traderbrotherslimited@gmail.com
           </div>
         </div>
@@ -233,6 +234,7 @@ function previewInvoice() {
         If you have any questions about this invoice, please contact<br>
         us at traderbrotherslimited@gmail.com on 07931 810557
         <div class="thank-you-preview">Thank you for your business</div>
+        <div style="margin-top:6px;font-size:10px;color:#888;font-style:normal;">Registered in Scotland</div>
       </div>
     </div>`;
 
@@ -667,6 +669,7 @@ function generateInvoiceHTML() {
             Edinburgh, EH17 7PB<br>
             07931 810557<br>
             <span class="vat-line">VAT: 524 6733 85</span><br>
+            Company number: SC815790<br>
             traderbrotherslimited@gmail.com
           </div>
         </div>
@@ -801,6 +804,7 @@ function generateInvoiceHTML() {
         If you have any questions about this invoice, please contact<br>
         us at traderbrotherslimited@gmail.com, or 07931 810557
         <div class="thank-you">Thank you for your business</div>
+        <div style="margin-top:6px;font-size:10px;color:#888;font-style:normal;">Registered in Scotland</div>
       </div>
     `;
     var invImportPayload = JSON.stringify({
@@ -825,7 +829,7 @@ function generateInvoiceHTML() {
         sections: invoiceSections
     });
     var invImportEncoded = btoa(encodeURIComponent(invImportPayload));
-    bodyContent += '<div style="font-size:4pt;color:#f5f5f5;font-family:Courier,monospace;line-height:4pt;word-break:break-all;margin:4px 0 0 0;padding:0;">OMEGA_IMPORT_V1_START' + invImportEncoded + 'OMEGA_IMPORT_V1_END</div></div>';
+    bodyContent += '<div style="font-size:4pt;color:#ffffff;font-family:Courier,monospace;line-height:4pt;word-break:break-all;margin:4px 0 0 0;padding:0;">OMEGA_IMPORT_V1_START' + invImportEncoded + 'OMEGA_IMPORT_V1_END</div></div>';
 
     return `<!DOCTYPE html>
 <html lang="en">
