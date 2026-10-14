@@ -204,7 +204,7 @@ function previewStatement() {
 
     previewHtml += '<div class="footer-note-preview">\
         If you have any questions about this statement, please contact<br>\
-        traderbrotherslimited@gmail.com, or 07931 810557\
+        traderbrotherslimited@gmail.com, or 07979309957\
         <div class="thank-you-preview">Thank you for your business</div>\
       </div>\
     </div>';
@@ -382,7 +382,7 @@ function generateStatementHTML() {
 
     bodyContent += '<div class="footer-note">\
         If you have any questions about this statement, please contact<br>\
-        us at traderbrotherslimited@gmail.com, or 07931 810557\
+        us at traderbrotherslimited@gmail.com, or 07979309957\
         <div class="thank-you">Thank you for your business</div>\
       </div>';
     var stmtImportPayload = JSON.stringify({

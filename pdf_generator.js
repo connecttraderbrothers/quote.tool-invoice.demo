@@ -252,9 +252,7 @@ function generateCompleteHTML() {
           <div class="company-details">
             8 Craigour Terrace<br>
             Edinburgh, EH17 7PB<br>
-            07931 810557<br>
-            <span class="vat-line">VAT: 524 6733 85</span><br>
-            traderbrotherslimited@gmail.com
+            <span class="vat-line">VAT: 524 6733 85</span>
           </div>
         </div>
         <div class="logo-container">
@@ -369,6 +367,7 @@ function generateCompleteHTML() {
           <li>Payment of ${depositPercent}% is required to secure start date</li>
           <li>Parking to be supplied by customer</li>
           <li>Any additional work to be charged accordingly</li>
+          <li>Invoice is to be paid within 7 days</li>
        </ol>
       ${customNotes ? '<div style="margin-top: 15px; font-size: 12px; line-height: 1.8; color: #666;"><strong>Additional Notes:</strong><br>' + customNotes.replace(/\n/g, '<br>') + '</div>' : ''}
     </div>
@@ -389,7 +388,7 @@ function generateCompleteHTML() {
 
       <div class="footer-note">
         If you have any questions about this estimate, please contact<br>
-        us at traderbrotherslimited@gmail.com, or 07931 810557
+        us at traderbrotherslimited@gmail.com, or 07979309957
         <div class="thank-you">Thank you for your business</div>
       </div>
     `;

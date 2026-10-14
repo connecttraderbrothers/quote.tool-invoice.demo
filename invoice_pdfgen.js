@@ -245,7 +245,7 @@ function previewInvoice() {
 
       <div class="footer-note-preview">
         If you have any questions about this invoice, please contact<br>
-        us at traderbrotherslimited@gmail.com on 07931 810557
+        us at traderbrotherslimited@gmail.com on 07979309957
         <div class="thank-you-preview">Thank you for your business</div>
       </div>
     </div>`;
@@ -827,7 +827,7 @@ function generateInvoiceHTML() {
 
       <div class="footer-note">
         If you have any questions about this invoice, please contact<br>
-        us at traderbrotherslimited@gmail.com, or 07931 810557
+        us at traderbrotherslimited@gmail.com, or 07979309957
         <div class="thank-you">Thank you for your business</div>
       </div>
     `;
