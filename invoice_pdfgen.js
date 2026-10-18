@@ -91,10 +91,8 @@ function previewInvoice() {
           <div class="company-details-preview">
             8 Craigour Terrace<br>
             Edinburgh, EH17 7PB<br>
-            07931 810557<br>
             <span class="vat-line-preview">VAT: 524 6733 85</span><br>
-            Company number: SC815790<br>
-            traderbrotherslimited@gmail.com
+            Company number: SC815790
           </div>
         </div>
         <div class="logo-container-preview">
@@ -667,10 +665,8 @@ function generateInvoiceHTML() {
           <div class="company-details">
             8 Craigour Terrace<br>
             Edinburgh, EH17 7PB<br>
-            07931 810557<br>
             <span class="vat-line">VAT: 524 6733 85</span><br>
-            Company number: SC815790<br>
-            traderbrotherslimited@gmail.com
+            Company number: SC815790
           </div>
         </div>
         <div class="logo-container">
